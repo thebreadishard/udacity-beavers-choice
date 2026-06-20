@@ -4,7 +4,7 @@
   "private": true,
   "description": "Tooling for the Beaver's Choice multi-agent system project (Mermaid diagram rendering).",
   "scripts": {
-    "diagram": "mmdc -i workflow_diagram.mmd -o workflow_diagram.png -b transparent"
+    "diagram": "mmdc -i workflow_diagram.mmd -o workflow_diagram.png -t default -b white -s 3 -w 2400"
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^11.4.2"

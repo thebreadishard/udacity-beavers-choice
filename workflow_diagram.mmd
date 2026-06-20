@@ -1,0 +1,72 @@
+---
+title: Beaver's Choice Paper Company — Multi-Agent System Workflow
+---
+flowchart TD
+    Customer([Customer Request<br/>text + request date])
+
+    subgraph Orch["Orchestration"]
+        Orchestrator{{"1 - Orchestrator Agent<br/>parse request, delegate,<br/>compose final reply"}}
+    end
+
+    subgraph Agents["Specialist Agents (smolagents)"]
+        direction LR
+        Inventory["2 - Inventory Agent<br/>stock lookups +<br/>reorder decisions"]
+        Quoting["3 - Quoting Agent<br/>pricing, bulk discounts,<br/>quote history"]
+        Sales["4 - Sales / Order Agent<br/>finalize sale, check stock,<br/>delivery timeline"]
+    end
+
+    subgraph Tools["Agent Tools (wrap project_starter helpers)"]
+        direction TB
+        T1[/"check_inventory<br/>get_all_inventory / get_stock_level"/]
+        T2[/"reorder_stock<br/>create_transaction (stock_orders)"/]
+        T3[/"check_quote_history<br/>search_quote_history"/]
+        T4[/"price_quote<br/>catalog pricing + discounts"/]
+        T5[/"check_delivery_date<br/>get_supplier_delivery_date"/]
+        T6[/"finalize_sale<br/>create_transaction (sales)"/]
+        T7[/"check_cash_balance<br/>get_cash_balance"/]
+    end
+
+    DB[("munder_difflin.db<br/>SQLite — transactions,<br/>inventory, quotes")]
+
+    %% Customer flow
+    Customer -->|inquiry| Orchestrator
+
+    %% Delegation
+    Orchestrator -->|"check stock /<br/>reorder?"| Inventory
+    Orchestrator -->|"generate quote"| Quoting
+    Orchestrator -->|"finalize order"| Sales
+
+    %% Inventory tools
+    Inventory --> T1
+    Inventory --> T2
+
+    %% Quoting tools
+    Quoting --> T3
+    Quoting --> T4
+    Quoting -.->|availability| T1
+
+    %% Sales tools
+    Sales --> T6
+    Sales --> T5
+    Sales --> T7
+    Sales -.->|verify stock| T1
+
+    %% Tools to DB
+    T1 --> DB
+    T2 --> DB
+    T3 --> DB
+    T6 --> DB
+    T7 --> DB
+
+    %% Responses back up
+    Inventory -.->|stock status| Orchestrator
+    Quoting -.->|quote + discount| Orchestrator
+    Sales -.->|confirmation +<br/>delivery date| Orchestrator
+    Orchestrator -->|"final text response"| Customer
+
+    classDef agent fill:#2563eb,stroke:#1e3a8a,color:#fff;
+    classDef tool fill:#f1f5f9,stroke:#64748b,color:#0f172a;
+    classDef db fill:#16a34a,stroke:#166534,color:#fff;
+    class Orchestrator,Inventory,Quoting,Sales agent;
+    class T1,T2,T3,T4,T5,T6,T7 tool;
+    class DB db;
