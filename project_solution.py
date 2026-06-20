@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import re
 import time
 import dotenv
 import ast
@@ -622,6 +623,22 @@ CATALOG_PRICES = {item["item_name"]: item["unit_price"] for item in paper_suppli
 CATALOG_NAMES = list(CATALOG_PRICES.keys())
 
 
+# The authoritative date for the request currently being processed. It is set from the
+# request's "(Date of request: ...)" tag before the agents run, so the tools never have
+# to trust a date argument the language model might hallucinate. When set, it overrides
+# whatever as_of_date the model passes to a tool.
+CURRENT_REQUEST_DATE: Union[str, None] = None
+
+
+def _effective_date(as_of_date: str) -> str:
+    """
+    Return the date a tool should actually use. The request date captured in
+    CURRENT_REQUEST_DATE is authoritative; the model-supplied as_of_date is only a
+    fallback for when no request date has been set (e.g. ad-hoc tool calls).
+    """
+    return CURRENT_REQUEST_DATE or as_of_date
+
+
 def resolve_item_name(item_name: str) -> Union[str, None]:
     """
     Map a free-text item description to an exact catalog item name.
@@ -679,6 +696,7 @@ def check_inventory(item_name: str, as_of_date: str) -> str:
         A human-readable summary with the resolved item name, current stock,
         minimum stock level, unit price, and a reorder recommendation.
     """
+    as_of_date = _effective_date(as_of_date)
     resolved = resolve_item_name(item_name)
     if resolved is None:
         return f"Item '{item_name}' was not found in the catalog."
@@ -723,6 +741,7 @@ def get_inventory_snapshot(as_of_date: str) -> str:
         A newline-separated list of every in-stock item and its quantity, or a
         message if no stock is available.
     """
+    as_of_date = _effective_date(as_of_date)
     inventory = get_all_inventory(as_of_date)
     if not inventory:
         return f"No items are in stock as of {as_of_date}."
@@ -747,6 +766,7 @@ def restock_item(item_name: str, quantity: int, as_of_date: str) -> str:
         A confirmation with the resolved item, quantity, cost, and estimated delivery
         date, or an explanation if the order cannot be placed.
     """
+    as_of_date = _effective_date(as_of_date)
     resolved = resolve_item_name(item_name)
     if resolved is None:
         return f"Item '{item_name}' was not found in the catalog; cannot restock."
@@ -836,6 +856,7 @@ def generate_quote(item_name: str, quantity: int, as_of_date: str) -> str:
         A quote summary with unit price, subtotal, any bulk discount applied, and the
         final total, or an explanation if the item cannot be quoted.
     """
+    as_of_date = _effective_date(as_of_date)
     resolved = resolve_item_name(item_name)
     if resolved is None:
         return f"Item '{item_name}' was not found in the catalog; cannot generate a quote."
@@ -884,6 +905,7 @@ def finalize_sale(item_name: str, quantity: int, as_of_date: str) -> str:
         A confirmation with the item, quantity, amount charged, and any discount applied,
         or an explanation if the order cannot be fulfilled (e.g. insufficient stock).
     """
+    as_of_date = _effective_date(as_of_date)
     resolved = resolve_item_name(item_name)
     if resolved is None:
         return f"Item '{item_name}' was not found in the catalog; the order cannot be fulfilled."
@@ -937,6 +959,7 @@ def check_delivery_date(quantity: int, as_of_date: str) -> str:
     Returns:
         The estimated delivery date (YYYY-MM-DD) for an order of that size.
     """
+    as_of_date = _effective_date(as_of_date)
     if quantity <= 0:
         return "Quantity must be a positive number of units to estimate delivery."
 
@@ -961,6 +984,7 @@ def get_financial_report(as_of_date: str) -> str:
         A readable financial summary covering cash, inventory value, total assets, and
         the best-selling products to date.
     """
+    as_of_date = _effective_date(as_of_date)
     report = generate_financial_report(as_of_date)
 
     top_products = report.get("top_selling_products", [])
@@ -1089,14 +1113,39 @@ def call_your_multi_agent_system(request: str) -> str:
     Entry point for the multi-agent system: routes a single customer request through the
     orchestrator agent and returns its final customer-facing response as text.
 
+    The request date is parsed from the '(Date of request: ...)' tag and stored in
+    CURRENT_REQUEST_DATE so the tools always use the correct date, regardless of any date
+    the language model might infer on its own. The date is also stated emphatically at the
+    start of the task to keep the agents' wording consistent.
+
     Args:
         request: The customer request text, including its '(Date of request: ...)' tag.
 
     Returns:
         The orchestrator's final response as a string.
     """
-    result = orchestrator_agent.run(request)
-    return str(result)
+    global CURRENT_REQUEST_DATE
+
+    # Capture the authoritative request date from the tag so tools never depend on a date
+    # the model might hallucinate.
+    match = re.search(r"Date of request:\s*(\d{4}-\d{2}-\d{2})", request)
+    CURRENT_REQUEST_DATE = match.group(1) if match else None
+
+    if CURRENT_REQUEST_DATE:
+        task = (
+            f"TODAY'S DATE IS {CURRENT_REQUEST_DATE}. Use this exact date for every tool "
+            f"call and in your reply; never use any other date or your own knowledge of "
+            f"the current date, and only state dates that a tool returned to you.\n\n"
+            f"{request}"
+        )
+    else:
+        task = request
+
+    try:
+        result = orchestrator_agent.run(task)
+        return str(result)
+    finally:
+        CURRENT_REQUEST_DATE = None
 
 
 # Run your test scenarios by writing them here. Make sure to keep track of them.
