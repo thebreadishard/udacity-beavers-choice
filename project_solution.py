@@ -1104,7 +1104,7 @@ def call_your_multi_agent_system(request: str) -> str:
 def run_test_scenarios():
     
     print("Initializing Database...")
-    init_database()
+    init_database(db_engine)
     try:
         quote_requests_sample = pd.read_csv("quote_requests_sample.csv")
         quote_requests_sample["request_date"] = pd.to_datetime(
@@ -1151,7 +1151,7 @@ def run_test_scenarios():
         ############
         ############
 
-        # response = call_your_multi_agent_system(request_with_date)
+        response = call_your_multi_agent_system(request_with_date)
 
         # Update state
         report = generate_financial_report(request_date)
