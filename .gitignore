@@ -15,6 +15,9 @@ __pycache__/
 build/
 dist/
 
+# Node / Mermaid CLI tooling
+node_modules/
+
 # Generated database & outputs
 *.db
 test_results.csv

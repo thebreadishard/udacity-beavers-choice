@@ -1,0 +1,12 @@
+{
+  "name": "udacity-beavers-choice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tooling for the Beaver's Choice multi-agent system project (Mermaid diagram rendering).",
+  "scripts": {
+    "diagram": "mmdc -i workflow_diagram.mmd -o workflow_diagram.png -b transparent"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.4.2"
+  }
+}
