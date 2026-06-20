@@ -617,11 +617,167 @@ model = OpenAIServerModel(
 """Set up tools for your agents to use, these should be methods that combine the database functions above
  and apply criteria to them to ensure that the flow of the system is correct."""
 
+from smolagents import tool
+
+# Quick lookup maps built from the master catalog (paper_supplies).
+CATALOG_PRICES = {item["item_name"]: item["unit_price"] for item in paper_supplies}
+CATALOG_NAMES = list(CATALOG_PRICES.keys())
+
+
+def resolve_item_name(item_name: str) -> Union[str, None]:
+    """
+    Map a free-text item description to an exact catalog item name.
+
+    Transactions fail unless the exact catalog name is used, but customers (and the
+    LLM) often paraphrase. This resolver tries, in order: exact match, case-insensitive
+    match, then a simple substring overlap, returning the closest catalog name or None.
+
+    Args:
+        item_name (str): The raw item name or description to resolve.
+
+    Returns:
+        Union[str, None]: The matching exact catalog name, or None if no reasonable match.
+    """
+    if not item_name:
+        return None
+
+    query = item_name.strip().lower()
+
+    # 1. Exact (case-insensitive) match against catalog names.
+    for name in CATALOG_NAMES:
+        if name.lower() == query:
+            return name
+
+    # 2. Substring match in either direction (e.g. "A4" -> "A4 paper").
+    for name in CATALOG_NAMES:
+        lowered = name.lower()
+        if query in lowered or lowered in query:
+            return name
+
+    # 3. Token-overlap fallback: pick the catalog name sharing the most words.
+    query_tokens = set(query.split())
+    best_name, best_overlap = None, 0
+    for name in CATALOG_NAMES:
+        overlap = len(query_tokens & set(name.lower().split()))
+        if overlap > best_overlap:
+            best_name, best_overlap = name, overlap
+
+    return best_name
+
 
 # Tools for inventory agent
 
+@tool
+def check_inventory(item_name: str, as_of_date: str) -> str:
+    """
+    Check the current stock level for one catalog item as of a given date, including
+    whether it has fallen to or below its minimum stock level (i.e. needs reordering).
+
+    Args:
+        item_name: The paper/product item to look up (free text is resolved to the catalog).
+        as_of_date: The date (YYYY-MM-DD) to evaluate stock as of, inclusive.
+
+    Returns:
+        A human-readable summary with the resolved item name, current stock,
+        minimum stock level, unit price, and a reorder recommendation.
+    """
+    resolved = resolve_item_name(item_name)
+    if resolved is None:
+        return f"Item '{item_name}' was not found in the catalog."
+
+    stock_df = get_stock_level(resolved, as_of_date)
+    current_stock = int(stock_df["current_stock"].iloc[0])
+
+    # Look up the item's minimum stock level from the inventory reference table.
+    inv = pd.read_sql(
+        "SELECT min_stock_level FROM inventory WHERE item_name = :name",
+        db_engine,
+        params={"name": resolved},
+    )
+    min_level = int(inv["min_stock_level"].iloc[0]) if not inv.empty else 0
+    unit_price = CATALOG_PRICES.get(resolved, 0.0)
+
+    needs_reorder = current_stock <= min_level
+    recommendation = (
+        "AT OR BELOW minimum - reorder recommended."
+        if needs_reorder
+        else "Above minimum - no reorder needed."
+    )
+
+    return (
+        f"Item: {resolved}\n"
+        f"Current stock: {current_stock} units (as of {as_of_date})\n"
+        f"Minimum stock level: {min_level} units\n"
+        f"Unit price: ${unit_price:.2f}\n"
+        f"Status: {recommendation}"
+    )
+
+
+@tool
+def get_inventory_snapshot(as_of_date: str) -> str:
+    """
+    Get a snapshot of all items currently in stock (positive quantity) as of a date.
+
+    Args:
+        as_of_date: The date (YYYY-MM-DD) to evaluate stock as of, inclusive.
+
+    Returns:
+        A newline-separated list of every in-stock item and its quantity, or a
+        message if no stock is available.
+    """
+    inventory = get_all_inventory(as_of_date)
+    if not inventory:
+        return f"No items are in stock as of {as_of_date}."
+
+    lines = [f"- {name}: {stock} units" for name, stock in sorted(inventory.items())]
+    return f"In-stock items as of {as_of_date}:\n" + "\n".join(lines)
+
+
+@tool
+def restock_item(item_name: str, quantity: int, as_of_date: str) -> str:
+    """
+    Place a supplier restock order for an item, recording it as a 'stock_orders'
+    transaction and returning the estimated delivery date. Only restock when stock
+    is low, and verify there is enough cash to cover the purchase cost.
+
+    Args:
+        item_name: The item to reorder (free text is resolved to the catalog).
+        quantity: The number of units to order (must be positive).
+        as_of_date: The order date (YYYY-MM-DD); delivery is estimated from this date.
+
+    Returns:
+        A confirmation with the resolved item, quantity, cost, and estimated delivery
+        date, or an explanation if the order cannot be placed.
+    """
+    resolved = resolve_item_name(item_name)
+    if resolved is None:
+        return f"Item '{item_name}' was not found in the catalog; cannot restock."
+
+    if quantity <= 0:
+        return "Restock quantity must be a positive number of units."
+
+    unit_price = CATALOG_PRICES.get(resolved, 0.0)
+    cost = round(quantity * unit_price, 2)
+
+    # Ensure the company can afford the restock before committing.
+    cash = get_cash_balance(as_of_date)
+    if cost > cash:
+        return (
+            f"Cannot restock {quantity} units of {resolved}: cost ${cost:.2f} "
+            f"exceeds available cash ${cash:.2f}."
+        )
+
+    delivery_date = get_supplier_delivery_date(as_of_date, quantity)
+    create_transaction(resolved, "stock_orders", quantity, cost, as_of_date)
+
+    return (
+        f"Restock order placed: {quantity} units of {resolved} for ${cost:.2f}.\n"
+        f"Order date: {as_of_date}. Estimated delivery: {delivery_date}."
+    )
+
 
 # Tools for quoting agent
+
 
 
 # Tools for ordering agent
