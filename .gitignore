@@ -21,6 +21,7 @@ node_modules/
 # Generated database & outputs
 *.db
 test_results.csv
+*.log
 
 # IDE / OS
 .vscode/
