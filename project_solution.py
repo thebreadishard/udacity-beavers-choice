@@ -1108,6 +1108,63 @@ orchestrator_agent = ToolCallingAgent(
 )
 
 
+# smolagents managed agents return their result using a fixed template
+# ("### 1. Task outcome (short version): ... ### 2. ...extremely detailed version... ###
+# 3. Additional context..."). That internal scaffolding is not appropriate for a customer
+# reply, so we strip it and keep only the substantive content.
+_SECTION_HEADER_RE = re.compile(r"#{2,4}\s*\d+\.\s*([^\n:]*?):?\s*\n")
+
+
+def _clean_customer_response(text: str) -> str:
+    """
+    Remove the smolagents managed-agent summary scaffolding from a final response.
+
+    The orchestrator sometimes passes a worker's structured summary
+    ("### 1. Task outcome (short version): ..." etc.) straight through to the customer.
+    This keeps the most complete section (the detailed version, falling back to the short
+    version) and appends any non-trivial "Additional context" as a closing note. If no
+    scaffolding is detected, the trimmed original text is returned unchanged.
+
+    Args:
+        text: The raw response returned by the orchestrator agent.
+
+    Returns:
+        A clean, customer-facing string with the internal template removed.
+    """
+    if not text:
+        return text
+
+    # Split on "### N. <title>:" headers; the capturing group yields the section titles.
+    parts = _SECTION_HEADER_RE.split(text)
+    if len(parts) < 3:
+        return text.strip()
+
+    # parts == [preamble, title1, body1, title2, body2, ...]
+    titles_bodies = list(zip(parts[1::2], parts[2::2]))
+    sections = {title.strip().lower(): body.strip() for title, body in titles_bodies}
+
+    body = None
+    for key, value in sections.items():
+        if "detailed version" in key:
+            body = value
+            break
+    if body is None:
+        for key, value in sections.items():
+            if "short version" in key or "task outcome" in key:
+                body = value
+                break
+    if not body:
+        return text.strip()
+
+    for key, value in sections.items():
+        if "additional context" in key:
+            if value and value.lower().rstrip(".") not in {"none", "n/a", ""}:
+                body = f"{body}\n\n{value}"
+            break
+
+    return body.strip()
+
+
 def call_your_multi_agent_system(request: str) -> str:
     """
     Entry point for the multi-agent system: routes a single customer request through the
@@ -1143,7 +1200,7 @@ def call_your_multi_agent_system(request: str) -> str:
 
     try:
         result = orchestrator_agent.run(task)
-        return str(result)
+        return _clean_customer_response(str(result))
     finally:
         CURRENT_REQUEST_DATE = None
 
