@@ -8,6 +8,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 from sqlalchemy import create_engine, Engine
+from smolagents import OpenAIServerModel
 
 # Create an SQLite database
 db_engine = create_engine("sqlite:///munder_difflin.db")
@@ -590,6 +591,27 @@ def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
 
 
 # Set up and load your env parameters and instantiate your model.
+
+# Load environment variables from a local .env file (UDACITY_OPENAI_API_KEY).
+dotenv.load_dotenv()
+
+# This project talks to an OpenAI-compatible proxy hosted by Udacity/Vocareum.
+OPENAI_BASE_URL = "https://openai.vocareum.com/v1"
+MODEL_ID = "gpt-4o-mini"
+
+api_key = os.getenv("UDACITY_OPENAI_API_KEY")
+if not api_key:
+    raise EnvironmentError(
+        "UDACITY_OPENAI_API_KEY is not set. Copy .env.example to .env and add your key."
+    )
+
+# The shared LLM ("model") that powers every agent in the system.
+model = OpenAIServerModel(
+    model_id=MODEL_ID,
+    api_base=OPENAI_BASE_URL,
+    api_key=api_key,
+)
+
 
 
 """Set up tools for your agents to use, these should be methods that combine the database functions above
