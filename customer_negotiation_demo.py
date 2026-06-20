@@ -34,6 +34,7 @@ import pandas as pd
 from smolagents import ToolCallingAgent
 
 import project_solution as team  # the company multi-agent system + shared helpers
+from pixel_agents_observer import attach_observer
 
 
 # --- Configuration ---------------------------------------------------------------------
@@ -93,7 +94,7 @@ def build_customer_instructions(mood: str, job: str, need_size: str, event: str)
 
 def make_customer_agent(mood: str, job: str, need_size: str, event: str) -> ToolCallingAgent:
     """Build a fresh, tool-less conversational agent that embodies the given persona."""
-    return ToolCallingAgent(
+    agent = ToolCallingAgent(
         tools=[],
         model=team.model,
         name="customer",
@@ -101,6 +102,10 @@ def make_customer_agent(mood: str, job: str, need_size: str, event: str) -> Tool
         instructions=build_customer_instructions(mood, job, need_size, event),
         max_steps=4,
     )
+    # Log the customer's turns to the same transcript the company team writes to, so the
+    # Pixel Agents extension can animate both sides of the negotiation.
+    attach_observer(agent, "customer")
+    return agent
 
 
 _DECISION_RE = re.compile(r"DECISION:\s*(ACCEPT|COUNTER|WALK)", re.IGNORECASE)

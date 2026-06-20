@@ -1108,6 +1108,30 @@ orchestrator_agent = ToolCallingAgent(
 )
 
 
+# --- Optional: Pixel Agents transcript logging ---
+# When enabled, attach a JSONL transcript observer to every agent so the "Pixel Agents"
+# VS Code extension can animate the run. All company agents share one session id so the
+# extension groups them as a single team. Disable by setting PIXEL_AGENTS_LOG=0.
+ENABLE_PIXEL_AGENTS_LOG = os.getenv("PIXEL_AGENTS_LOG", "1") != "0"
+_pixel_orchestrator_observer = None
+if ENABLE_PIXEL_AGENTS_LOG:
+    try:
+        import uuid
+
+        from pixel_agents_observer import attach_observer
+
+        _pixel_session = os.getenv("PIXEL_AGENTS_SESSION") or uuid.uuid4().hex
+        attach_observer(inventory_agent, "inventory_agent", session_id=_pixel_session)
+        attach_observer(quoting_agent, "quoting_agent", session_id=_pixel_session)
+        attach_observer(sales_agent, "sales_agent", session_id=_pixel_session)
+        _pixel_orchestrator_observer = attach_observer(
+            orchestrator_agent, "orchestrator_agent", session_id=_pixel_session
+        )
+    except Exception as exc:  # never let logging setup break the system
+        print(f"[pixel-agents] transcript logging disabled: {exc}")
+        _pixel_orchestrator_observer = None
+
+
 # smolagents managed agents return their result using a fixed template
 # ("### 1. Task outcome (short version): ... ### 2. ...extremely detailed version... ###
 # 3. Additional context..."). That internal scaffolding is not appropriate for a customer
@@ -1198,9 +1222,15 @@ def call_your_multi_agent_system(request: str) -> str:
     else:
         task = request
 
+    if _pixel_orchestrator_observer is not None:
+        _pixel_orchestrator_observer.log_start(request)
+
     try:
         result = orchestrator_agent.run(task)
-        return _clean_customer_response(str(result))
+        cleaned = _clean_customer_response(str(result))
+        if _pixel_orchestrator_observer is not None:
+            _pixel_orchestrator_observer.log_done(cleaned)
+        return cleaned
     finally:
         CURRENT_REQUEST_DATE = None
 

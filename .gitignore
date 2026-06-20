@@ -22,6 +22,7 @@ node_modules/
 *.db
 test_results.csv
 negotiation_results.csv
+transcript.jsonl
 *.log
 
 # IDE / OS
