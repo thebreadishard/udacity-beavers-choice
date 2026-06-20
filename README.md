@@ -20,7 +20,7 @@ This project challenges your ability to orchestrate agents using modern Python f
 
 From the `project.zip` starter archive, you will find:
 
-- `project_starter.py`: The main Python script you will modify to implement your agent system
+- `project_solution.py`: The main Python script you will modify to implement your agent system
 - `quotes.csv`: Historical quote data used for reference by quoting agents
 - `quote_requests.csv`: Incoming customer requests used to build quoting logic
 - `quote_requests_sample.csv`: A set of simulated test cases to evaluate your system
@@ -86,7 +86,7 @@ Output will include:
 
 Make sure to submit the following files:
 
-1. Your completed `template.py` or `project_starter.py` with all agent logic
+1. Your completed `project_solution.py` with all agent logic
 2. A **workflow diagram** describing your agent architecture and data flow
 3. A `README.txt` or `design_notes.txt` explaining how your system works
 4. Outputs from your test run (like `test_results.csv`)
