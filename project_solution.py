@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, Engine
 from smolagents import OpenAIServerModel, ToolCallingAgent, tool
 
 # Create an SQLite database
-db_engine = create_engine("sqlite:///munder_difflin.db")
+db_engine = create_engine("sqlite:///beavers_choice.db")
 
 # List containing the different kinds of papers 
 paper_supplies = [
@@ -129,7 +129,7 @@ def generate_sample_inventory(paper_supplies: list, coverage: float = 0.4, seed:
 
 def init_database(db_engine: Engine, seed: int = 137) -> Engine:    
     """
-    Set up the Munder Difflin database with all required tables and initial records.
+    Set up the Beaver's Choice database with all required tables and initial records.
 
     This function performs the following tasks:
     - Creates the 'transactions' table for logging stock orders and sales
