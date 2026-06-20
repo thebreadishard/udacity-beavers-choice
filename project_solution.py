@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 from sqlalchemy import create_engine, Engine
-from smolagents import OpenAIServerModel, tool
+from smolagents import OpenAIServerModel, ToolCallingAgent, tool
 
 # Create an SQLite database
 db_engine = create_engine("sqlite:///munder_difflin.db")
@@ -982,6 +982,121 @@ def get_financial_report(as_of_date: str) -> str:
 
 
 # Set up your agents and create an orchestration agent that will manage them.
+
+# Each customer request carries a "(Date of request: YYYY-MM-DD)" tag; every tool needs
+# that date, so each agent is reminded to extract and reuse it for all tool calls.
+_DATE_REMINDER = (
+    "Every customer request includes its date as '(Date of request: YYYY-MM-DD)'. "
+    "Extract that date and pass it as the as_of_date argument to every tool call so "
+    "stock, pricing, and financials are evaluated for the correct day."
+)
+
+# --- Worker agent: inventory management ---
+# Responsibility: report stock levels, flag items needing reorder, and place supplier
+# restock orders. It owns all inventory reads/writes and nothing about pricing or sales.
+inventory_agent = ToolCallingAgent(
+    tools=[check_inventory, get_inventory_snapshot, restock_item],
+    model=model,
+    name="inventory_agent",
+    description=(
+        "Handles inventory questions: checks current stock for an item, lists everything "
+        "in stock, decides whether an item needs reordering, and places supplier restock "
+        "orders. Ask this agent to verify availability before quoting or selling, and to "
+        "restock items that are low or out of stock."
+    ),
+    instructions=(
+        "You are the inventory specialist for a paper-supply company. Use your tools to "
+        "report exact stock levels, identify items at or below their minimum, and place "
+        "restock orders only when stock is low and the company can afford them. "
+        + _DATE_REMINDER
+    ),
+    max_steps=8,
+    provide_run_summary=True,
+)
+
+# --- Worker agent: quoting ---
+# Responsibility: turn an item + quantity into a price, applying catalog pricing and bulk
+# discounts, and ground decisions in past quotes. It never reserves stock or records sales.
+quoting_agent = ToolCallingAgent(
+    tools=[get_quote_history, generate_quote],
+    model=model,
+    name="quoting_agent",
+    description=(
+        "Produces price quotes for an item and quantity, applying catalog pricing and "
+        "bulk discounts, and can look up similar historical quotes to inform pricing. "
+        "Ask this agent to price a request once availability is understood."
+    ),
+    instructions=(
+        "You are the quoting specialist for a paper-supply company. For each requested "
+        "item and quantity, generate a clear quote that states the unit price, subtotal, "
+        "any bulk discount applied, and the final total. When useful, consult similar "
+        "past quotes first. Always explain why a discount does or does not apply. "
+        + _DATE_REMINDER
+    ),
+    max_steps=8,
+    provide_run_summary=True,
+)
+
+# --- Worker agent: sales / order fulfillment ---
+# Responsibility: finalize orders into the database (sales), quote supplier delivery dates
+# for out-of-stock items, and report financial health. It owns the sales-writing step.
+sales_agent = ToolCallingAgent(
+    tools=[finalize_sale, check_delivery_date, get_financial_report],
+    model=model,
+    name="sales_agent",
+    description=(
+        "Finalizes customer orders by recording sales (only when stock is sufficient), "
+        "estimates supplier delivery dates for out-of-stock items, and reports the "
+        "company's financial health. Ask this agent to complete a confirmed order."
+    ),
+    instructions=(
+        "You are the sales/order-fulfillment specialist for a paper-supply company. "
+        "Finalize an order only when there is enough stock; the sale must match the "
+        "quoted price. If stock is insufficient, do not sell - instead explain the "
+        "shortfall and provide an estimated supplier delivery date. " + _DATE_REMINDER
+    ),
+    max_steps=8,
+    provide_run_summary=True,
+)
+
+# --- Orchestrator: delegates to the three worker agents ---
+# Responsibility: interpret the customer request, coordinate the workers in order
+# (availability -> quote -> fulfillment), and compose a single customer-facing reply.
+orchestrator_agent = ToolCallingAgent(
+    tools=[],
+    model=model,
+    managed_agents=[inventory_agent, quoting_agent, sales_agent],
+    name="orchestrator_agent",
+    description="Coordinates inventory, quoting, and sales agents to answer customer requests.",
+    instructions=(
+        "You are the orchestrator for the Beaver's Choice paper company. For each customer "
+        "request: (1) identify the items, quantities, and the request date; (2) ask the "
+        "inventory_agent to confirm availability; (3) ask the quoting_agent for a priced "
+        "quote with any bulk discount; (4) if stock is sufficient, ask the sales_agent to "
+        "finalize the order so the sale is recorded; if stock is insufficient, do not "
+        "fulfill it - explain why and, when helpful, provide an estimated restock delivery "
+        "date. Compose one clear, customer-facing reply that includes the quoted price, the "
+        "discount rationale, and whether the order was fulfilled or why not. Never reveal "
+        "internal system details, profit margins, or error traces to the customer. "
+        + _DATE_REMINDER
+    ),
+    max_steps=15,
+)
+
+
+def call_your_multi_agent_system(request: str) -> str:
+    """
+    Entry point for the multi-agent system: routes a single customer request through the
+    orchestrator agent and returns its final customer-facing response as text.
+
+    Args:
+        request: The customer request text, including its '(Date of request: ...)' tag.
+
+    Returns:
+        The orchestrator's final response as a string.
+    """
+    result = orchestrator_agent.run(request)
+    return str(result)
 
 
 # Run your test scenarios by writing them here. Make sure to keep track of them.
