@@ -867,6 +867,120 @@ def generate_quote(item_name: str, quantity: int, as_of_date: str) -> str:
 # Tools for ordering agent
 
 
+@tool
+def finalize_sale(item_name: str, quantity: int, as_of_date: str) -> str:
+    """
+    Finalize a customer order by recording it as a 'sales' transaction, but only if
+    there is enough stock on hand. Applies the same catalog pricing and bulk discount
+    used when quoting so the charged amount matches the quote. This permanently updates
+    the database and reduces available stock.
+
+    Args:
+        item_name: The item being sold (free text is resolved to the catalog).
+        quantity: The number of units the customer is ordering (must be positive).
+        as_of_date: The order date (YYYY-MM-DD).
+
+    Returns:
+        A confirmation with the item, quantity, amount charged, and any discount applied,
+        or an explanation if the order cannot be fulfilled (e.g. insufficient stock).
+    """
+    resolved = resolve_item_name(item_name)
+    if resolved is None:
+        return f"Item '{item_name}' was not found in the catalog; the order cannot be fulfilled."
+
+    if quantity <= 0:
+        return "Order quantity must be a positive number of units."
+
+    # Confirm there is enough stock to fulfill the order before charging the customer.
+    stock_df = get_stock_level(resolved, as_of_date)
+    current_stock = int(stock_df["current_stock"].iloc[0])
+    if quantity > current_stock:
+        return (
+            f"Unable to fulfill the order for {quantity} units of {resolved}: only "
+            f"{current_stock} units are in stock as of {as_of_date}. Consider ordering "
+            f"the available quantity or allowing time for a restock."
+        )
+
+    # Price the order with the same logic as the quote so the customer is charged consistently.
+    unit_price = CATALOG_PRICES.get(resolved, 0.0)
+    subtotal = round(quantity * unit_price, 2)
+    discount_rate = _bulk_discount_rate(subtotal)
+    discount_amount = round(subtotal * discount_rate, 2)
+    total = round(subtotal - discount_amount, 2)
+
+    create_transaction(resolved, "sales", quantity, total, as_of_date)
+
+    discount_line = (
+        f"Bulk discount applied: {int(discount_rate * 100)}% (-${discount_amount:.2f})\n"
+        if discount_rate > 0
+        else ""
+    )
+
+    return (
+        f"Order confirmed: {quantity} units of {resolved} sold on {as_of_date}.\n"
+        f"Subtotal: ${subtotal:.2f}\n"
+        f"{discount_line}"
+        f"Amount charged: ${total:.2f}"
+    )
+
+
+@tool
+def check_delivery_date(quantity: int, as_of_date: str) -> str:
+    """
+    Estimate when a supplier restock order of a given size would be delivered, based on
+    the order date. Useful for telling a customer when out-of-stock items could arrive.
+
+    Args:
+        quantity: The number of units that would be ordered from the supplier.
+        as_of_date: The order date (YYYY-MM-DD) the estimate is based on.
+
+    Returns:
+        The estimated delivery date (YYYY-MM-DD) for an order of that size.
+    """
+    if quantity <= 0:
+        return "Quantity must be a positive number of units to estimate delivery."
+
+    delivery_date = get_supplier_delivery_date(as_of_date, quantity)
+    return (
+        f"An order of {quantity} units placed on {as_of_date} would be delivered "
+        f"by {delivery_date}."
+    )
+
+
+@tool
+def get_financial_report(as_of_date: str) -> str:
+    """
+    Produce a financial summary of the company as of a date, including cash balance,
+    inventory value, total assets, and the top-selling products. Use this to confirm
+    the company can support large restock orders or to review overall financial health.
+
+    Args:
+        as_of_date: The date (YYYY-MM-DD) to report as of, inclusive.
+
+    Returns:
+        A readable financial summary covering cash, inventory value, total assets, and
+        the best-selling products to date.
+    """
+    report = generate_financial_report(as_of_date)
+
+    top_products = report.get("top_selling_products", [])
+    if top_products:
+        top_lines = "\n".join(
+            f"  - {p.get('item_name', 'n/a')}: ${p.get('total_revenue', 0):.2f} revenue"
+            for p in top_products
+        )
+    else:
+        top_lines = "  (no sales recorded yet)"
+
+    return (
+        f"Financial report as of {report.get('as_of_date', as_of_date)}:\n"
+        f"Cash balance: ${report.get('cash_balance', 0):.2f}\n"
+        f"Inventory value: ${report.get('inventory_value', 0):.2f}\n"
+        f"Total assets: ${report.get('total_assets', 0):.2f}\n"
+        f"Top-selling products:\n{top_lines}"
+    )
+
+
 # Set up your agents and create an orchestration agent that will manage them.
 
 
