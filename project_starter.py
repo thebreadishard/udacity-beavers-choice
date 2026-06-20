@@ -8,7 +8,7 @@ from sqlalchemy.sql import text
 from datetime import datetime, timedelta
 from typing import Dict, List, Union
 from sqlalchemy import create_engine, Engine
-from smolagents import OpenAIServerModel
+from smolagents import OpenAIServerModel, tool
 
 # Create an SQLite database
 db_engine = create_engine("sqlite:///munder_difflin.db")
@@ -617,8 +617,6 @@ model = OpenAIServerModel(
 """Set up tools for your agents to use, these should be methods that combine the database functions above
  and apply criteria to them to ensure that the flow of the system is correct."""
 
-from smolagents import tool
-
 # Quick lookup maps built from the master catalog (paper_supplies).
 CATALOG_PRICES = {item["item_name"]: item["unit_price"] for item in paper_supplies}
 CATALOG_NAMES = list(CATALOG_PRICES.keys())
@@ -778,6 +776,92 @@ def restock_item(item_name: str, quantity: int, as_of_date: str) -> str:
 
 # Tools for quoting agent
 
+# Bulk discount tiers applied to a quote's pre-discount subtotal.
+# Each tuple is (minimum subtotal in dollars, discount rate).
+BULK_DISCOUNT_TIERS = [
+    (1000.0, 0.10),  # 10% off orders over $1000
+    (500.0, 0.05),   # 5% off orders over $500
+]
+
+
+def _bulk_discount_rate(subtotal: float) -> float:
+    """Return the bulk discount rate that applies to a given pre-discount subtotal."""
+    for threshold, rate in BULK_DISCOUNT_TIERS:
+        if subtotal > threshold:
+            return rate
+    return 0.0
+
+
+@tool
+def get_quote_history(search_terms: List[str], limit: int = 3) -> str:
+    """
+    Retrieve similar historical quotes to inform pricing for a new request.
+
+    Args:
+        search_terms: Keywords describing the request (e.g. event type, item, job type).
+        limit: Maximum number of past quotes to return (default 3).
+
+    Returns:
+        A readable summary of matching past quotes, including their total amount and
+        explanation, or a message if no similar quotes are found.
+    """
+    history = search_quote_history(search_terms, limit=limit)
+    if not history:
+        return "No similar historical quotes were found."
+
+    lines = []
+    for i, quote in enumerate(history, start=1):
+        lines.append(
+            f"{i}. Total: ${quote.get('total_amount', 0):.2f} | "
+            f"Job: {quote.get('job_type', 'n/a')} | "
+            f"Event: {quote.get('event_type', 'n/a')} | "
+            f"Size: {quote.get('order_size', 'n/a')}\n"
+            f"   Explanation: {quote.get('quote_explanation', '').strip()}"
+        )
+    return "Similar historical quotes:\n" + "\n".join(lines)
+
+
+@tool
+def generate_quote(item_name: str, quantity: int, as_of_date: str) -> str:
+    """
+    Generate a price quote for a single item and quantity, applying catalog pricing
+    and any qualifying bulk discount. This does NOT reserve stock or record a sale.
+
+    Args:
+        item_name: The item being quoted (free text is resolved to the catalog).
+        quantity: The number of units requested (must be positive).
+        as_of_date: The quote date (YYYY-MM-DD).
+
+    Returns:
+        A quote summary with unit price, subtotal, any bulk discount applied, and the
+        final total, or an explanation if the item cannot be quoted.
+    """
+    resolved = resolve_item_name(item_name)
+    if resolved is None:
+        return f"Item '{item_name}' was not found in the catalog; cannot generate a quote."
+
+    if quantity <= 0:
+        return "Quote quantity must be a positive number of units."
+
+    unit_price = CATALOG_PRICES.get(resolved, 0.0)
+    subtotal = round(quantity * unit_price, 2)
+    discount_rate = _bulk_discount_rate(subtotal)
+    discount_amount = round(subtotal * discount_rate, 2)
+    total = round(subtotal - discount_amount, 2)
+
+    discount_line = (
+        f"Bulk discount: {int(discount_rate * 100)}% (-${discount_amount:.2f})\n"
+        if discount_rate > 0
+        else "Bulk discount: none (order does not meet discount threshold)\n"
+    )
+
+    return (
+        f"Quote for {quantity} units of {resolved} (as of {as_of_date}):\n"
+        f"Unit price: ${unit_price:.2f}\n"
+        f"Subtotal: ${subtotal:.2f}\n"
+        f"{discount_line}"
+        f"Total: ${total:.2f}"
+    )
 
 
 # Tools for ordering agent
