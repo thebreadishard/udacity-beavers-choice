@@ -34,7 +34,7 @@ import pandas as pd
 from smolagents import ToolCallingAgent
 
 import project_solution as team  # the company multi-agent system + shared helpers
-from pixel_agents_observer import attach_observer
+from agent_transcript import attach_observer
 
 
 # --- Configuration ---------------------------------------------------------------------
@@ -217,6 +217,7 @@ def main() -> pd.DataFrame:
     """Run the negotiation demo over a few distinct-mood personas and report results."""
     print("Initializing database for a clean, reproducible demo run...")
     team.init_database(team.db_engine)
+    team._reset_transcript()  # fresh transcript so the viewer animation starts clean
 
     cash_before = team.generate_financial_report(DEMO_DATE)["cash_balance"]
     print(f"Company cash before negotiations: ${cash_before:,.2f}")

@@ -72,6 +72,30 @@ Output will include:
 
 ---
 
+## Pixel Office Viewer (stand-out feature)
+
+The system can stream its agent activity to a self-contained **pixel-art office** that
+animates each agent (orchestrator, inventory, quoting, sales, customer) as they think,
+call tools, and finish — no external extension required.
+
+How it works:
+
+1. While the system runs, `agent_transcript.py` appends one JSON line per agent state
+   change to `transcript.jsonl` (enabled by default; disable with `AGENT_TRANSCRIPT_LOG=0`).
+2. A tiny stdlib server tails that file and serves a browser UI.
+
+Run it in a second terminal:
+
+```
+python viewer/server.py
+```
+
+Then open `http://127.0.0.1:8000/` (or VS Code's Simple Browser). Use **LIVE** to watch a
+run in real time, or **REPLAY** to play a finished `transcript.jsonl` back at adjustable
+speed. The right-hand **activity feed** shows each event, color-coded per agent.
+
+---
+
 ## Tips for Success
 
 - Start by sketching a **flow diagram** to visualize agent responsibilities and interactions.

@@ -1,28 +1,28 @@
 """
-pixel_agents_observer.py
-========================
+agent_transcript.py
+===================
 
-A lightweight logging observer that bridges Hugging Face ``smolagents`` execution into the
-``.jsonl`` transcript format watched by the "Pixel Agents" VS Code extension (which natively
-follows transcript files produced by LLM CLIs such as Claude Code).
+A lightweight logging observer that records Hugging Face ``smolagents`` execution into a
+simple ``.jsonl`` transcript that our own pixel-office viewer (``viewer/``) tails and
+animates. We own the schema end to end: each line describes one agent state change.
 
 The observer is attached as a ``smolagents`` *step callback*. After every agent step it
 appends one JSON object per state change (thinking, tool use, tool result, done) to a
-``transcript.jsonl`` file in the workspace root. Each line carries the fields the extension
-needs to animate the run, while also mirroring the nested ``type``/``message`` shape of a
-Claude-Code-style CLI log so existing parsers recognise it.
+``transcript.jsonl`` file in the workspace root. Each line carries the fields the viewer
+needs to animate the run; a nested ``type``/``message`` block is also included so the file
+stays readable as a generic LLM-CLI-style log.
 
 Usage
 -----
 Attach at agent construction::
 
-    from pixel_agents_observer import PixelAgentsObserver
-    observer = PixelAgentsObserver(agent_id="orchestrator_agent")
+    from agent_transcript import TranscriptObserver
+    observer = TranscriptObserver(agent_id="orchestrator_agent")
     agent = ToolCallingAgent(tools=[...], model=model, step_callbacks=[observer])
 
 ...or attach to an already-built agent::
 
-    from pixel_agents_observer import attach_observer
+    from agent_transcript import attach_observer
     observer = attach_observer(existing_agent, agent_id="customer")
 
 Wrap run boundaries to also emit explicit start/done markers::
@@ -46,8 +46,8 @@ except Exception:  # pragma: no cover - smolagents always provides this in pract
     ActionStep = None
 
 
-# Map an internal state to a Claude-Code-style top-level log "type" so generic LLM-CLI
-# transcript parsers (like the one Pixel Agents uses) recognise each line.
+# Map an internal state to a generic LLM-CLI-style top-level log "type" so the transcript
+# also reads naturally as a conversation log (user / assistant / result).
 _STATE_TO_TYPE = {
     "start": "user",
     "thinking": "assistant",
@@ -81,11 +81,11 @@ def _message_block(state: str, content: str, tool_name: str):
     return {"role": role, "content": [{"type": "text", "text": content}]}
 
 
-class PixelAgentsObserver:
+class TranscriptObserver:
     """A ``smolagents`` step callback that appends state changes to a ``.jsonl`` transcript.
 
     Args:
-        agent_id: Identifier written to every line so the extension can tell agents apart
+        agent_id: Identifier written to every line so the viewer can tell agents apart
             (e.g. ``"orchestrator_agent"`` vs ``"customer"``).
         transcript_path: Path to the JSONL transcript file (default ``transcript.jsonl``).
         session_id: Optional shared session id; a random one is generated if omitted.
@@ -110,7 +110,7 @@ class PixelAgentsObserver:
                 "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "sessionId": self.session_id,
                 "uuid": uuid4().hex,
-                "agent": self.agent_id,        # agent identifier
+                "agent": self.agent_id,        # agent identifier (which desk/sprite)
                 "state": state,                # thinking | tool_use | tool_result | done
                 "type": _STATE_TO_TYPE.get(state, "assistant"),
                 "content": content,            # text content
@@ -122,7 +122,7 @@ class PixelAgentsObserver:
                 payload["step"] = step
 
             line = json.dumps(payload, ensure_ascii=False)
-            with PixelAgentsObserver._file_lock:
+            with TranscriptObserver._file_lock:
                 self.path.parent.mkdir(parents=True, exist_ok=True)
                 with self.path.open("a", encoding="utf-8") as fh:
                     fh.write(line + "\n")
@@ -180,9 +180,9 @@ class PixelAgentsObserver:
 
 
 def attach_observer(agent, agent_id: str, transcript_path: str = "transcript.jsonl",
-                    session_id: str = None) -> PixelAgentsObserver:
+                    session_id: str = None) -> TranscriptObserver:
     """
-    Attach a :class:`PixelAgentsObserver` to an already-constructed smolagents agent.
+    Attach a :class:`TranscriptObserver` to an already-constructed smolagents agent.
 
     Registers the observer as an ``ActionStep`` callback on the agent's callback registry
     and returns it, so the caller can also use ``log_start`` / ``log_done`` around runs.
@@ -196,7 +196,7 @@ def attach_observer(agent, agent_id: str, transcript_path: str = "transcript.jso
     Returns:
         The attached observer instance.
     """
-    observer = PixelAgentsObserver(agent_id, transcript_path, session_id)
+    observer = TranscriptObserver(agent_id, transcript_path, session_id)
     registry = getattr(agent, "step_callbacks", None)
     if registry is not None and ActionStep is not None and hasattr(registry, "register"):
         registry.register(ActionStep, observer)

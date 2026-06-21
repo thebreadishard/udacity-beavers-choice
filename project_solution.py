@@ -1108,28 +1108,51 @@ orchestrator_agent = ToolCallingAgent(
 )
 
 
-# --- Optional: Pixel Agents transcript logging ---
-# When enabled, attach a JSONL transcript observer to every agent so the "Pixel Agents"
-# VS Code extension can animate the run. All company agents share one session id so the
-# extension groups them as a single team. Disable by setting PIXEL_AGENTS_LOG=0.
-ENABLE_PIXEL_AGENTS_LOG = os.getenv("PIXEL_AGENTS_LOG", "1") != "0"
-_pixel_orchestrator_observer = None
-if ENABLE_PIXEL_AGENTS_LOG:
+# --- Optional: agent transcript logging (drives the pixel-office viewer) ---
+# When enabled, attach a JSONL transcript observer to every agent so our standalone
+# pixel-office viewer (see viewer/) can animate the run. All company agents share one
+# session id so they are grouped as a single team. Disable by setting AGENT_TRANSCRIPT_LOG=0.
+ENABLE_TRANSCRIPT_LOG = os.getenv("AGENT_TRANSCRIPT_LOG", "1") != "0"
+_orchestrator_observer = None
+_customer_observer = None
+if ENABLE_TRANSCRIPT_LOG:
     try:
         import uuid
 
-        from pixel_agents_observer import attach_observer
+        from agent_transcript import TranscriptObserver, attach_observer
 
-        _pixel_session = os.getenv("PIXEL_AGENTS_SESSION") or uuid.uuid4().hex
-        attach_observer(inventory_agent, "inventory_agent", session_id=_pixel_session)
-        attach_observer(quoting_agent, "quoting_agent", session_id=_pixel_session)
-        attach_observer(sales_agent, "sales_agent", session_id=_pixel_session)
-        _pixel_orchestrator_observer = attach_observer(
-            orchestrator_agent, "orchestrator_agent", session_id=_pixel_session
+        _transcript_session = os.getenv("AGENT_TRANSCRIPT_SESSION") or uuid.uuid4().hex
+        attach_observer(inventory_agent, "inventory_agent", session_id=_transcript_session)
+        attach_observer(quoting_agent, "quoting_agent", session_id=_transcript_session)
+        attach_observer(sales_agent, "sales_agent", session_id=_transcript_session)
+        _orchestrator_observer = attach_observer(
+            orchestrator_agent, "orchestrator_agent", session_id=_transcript_session
         )
+        # The incoming request comes from a customer; give them a station that lights up
+        # first so the animation begins with the customer handing over the request.
+        _customer_observer = TranscriptObserver("customer", session_id=_transcript_session)
     except Exception as exc:  # never let logging setup break the system
-        print(f"[pixel-agents] transcript logging disabled: {exc}")
-        _pixel_orchestrator_observer = None
+        print(f"[agent-transcript] transcript logging disabled: {exc}")
+        _orchestrator_observer = None
+        _customer_observer = None
+
+
+def _reset_transcript() -> None:
+    """Truncate the transcript file so each run's animation starts clean (customer first)."""
+    if not ENABLE_TRANSCRIPT_LOG:
+        return
+    try:
+        from pathlib import Path
+
+        path = _orchestrator_observer.path if _orchestrator_observer is not None \
+            else Path("transcript.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+    except Exception:
+        # Never let viewer housekeeping break a run.
+        pass
+
+
 
 
 # smolagents managed agents return their result using a fixed template
@@ -1222,14 +1245,18 @@ def call_your_multi_agent_system(request: str) -> str:
     else:
         task = request
 
-    if _pixel_orchestrator_observer is not None:
-        _pixel_orchestrator_observer.log_start(request)
+    if _customer_observer is not None:
+        _customer_observer.log_start(request)
+    if _orchestrator_observer is not None:
+        _orchestrator_observer.log_start(request)
 
     try:
         result = orchestrator_agent.run(task)
         cleaned = _clean_customer_response(str(result))
-        if _pixel_orchestrator_observer is not None:
-            _pixel_orchestrator_observer.log_done(cleaned)
+        if _orchestrator_observer is not None:
+            _orchestrator_observer.log_done(cleaned)
+        if _customer_observer is not None:
+            _customer_observer.log_done(cleaned)
         return cleaned
     finally:
         CURRENT_REQUEST_DATE = None
@@ -1241,6 +1268,7 @@ def run_test_scenarios():
     
     print("Initializing Database...")
     init_database(db_engine)
+    _reset_transcript()  # fresh transcript so the viewer animation starts from the customer
     try:
         quote_requests_sample = pd.read_csv("quote_requests_sample.csv")
         quote_requests_sample["request_date"] = pd.to_datetime(

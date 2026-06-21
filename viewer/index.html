@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beaver's Choice — Pixel Office</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- "Press Start 2P" (SIL OFL). A monospace fallback is declared in CSS so the
+       viewer still renders fully offline if the font fails to load. -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="title">BEAVER&#39;S CHOICE&nbsp;<span class="title-sub">PAPER&nbsp;CO. — OPS&nbsp;FLOOR</span></h1>
+    <div class="controls">
+      <div class="mode-toggle" role="group" aria-label="Viewer mode">
+        <button id="mode-live" class="mode-btn is-active" data-mode="live">LIVE</button>
+        <button id="mode-replay" class="mode-btn" data-mode="replay">REPLAY</button>
+      </div>
+      <div id="replay-controls" class="replay-controls" hidden>
+        <button id="replay-play" class="ctrl-btn" title="Play / pause">&#9654;</button>
+        <button id="replay-restart" class="ctrl-btn" title="Restart">&#8634;</button>
+        <label class="speed">
+          SPEED
+          <select id="replay-speed">
+            <option value="1600">0.5x</option>
+            <option value="800" selected>1x</option>
+            <option value="400">2x</option>
+            <option value="150">4x</option>
+          </select>
+        </label>
+      </div>
+      <div class="status">
+        <span id="status-dot" class="status-dot"></span>
+        <span id="status-text" class="status-text">connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- The pixel office. Each station is one agent's desk + sprite. -->
+    <section class="office" id="office" aria-label="Agent office">
+      <!-- Two floor zones: the company office (wood) and the customer lobby (tile),
+           separated by a reception counter. -->
+      <div class="zone zone--office"></div>
+      <div class="zone zone--lobby"></div>
+      <div class="lobby-door" aria-hidden="true"></div>
+      <div class="partition" aria-hidden="true"><span class="partition-sign">RECEPTION</span></div>
+      <div class="zone-label zone-label--office">OFFICE</div>
+      <div class="zone-label zone-label--lobby">LOBBY</div>
+
+      <!-- Orchestrator sits center-back as the team lead. -->
+      <div class="station station--orchestrator" data-agent="orchestrator_agent">
+        <div class="bubble" data-role="bubble"></div>
+        <div class="tool-badge" data-role="tool"></div>
+        <div class="sprite" data-role="sprite"></div>
+        <div class="desk"></div>
+        <div class="nameplate">ORCHESTRATOR</div>
+      </div>
+
+      <div class="station station--inventory" data-agent="inventory_agent">
+        <div class="bubble" data-role="bubble"></div>
+        <div class="tool-badge" data-role="tool"></div>
+        <div class="sprite" data-role="sprite"></div>
+        <div class="desk"></div>
+        <div class="nameplate">INVENTORY</div>
+      </div>
+
+      <div class="station station--quoting" data-agent="quoting_agent">
+        <div class="bubble" data-role="bubble"></div>
+        <div class="tool-badge" data-role="tool"></div>
+        <div class="sprite" data-role="sprite"></div>
+        <div class="desk"></div>
+        <div class="nameplate">QUOTING</div>
+      </div>
+
+      <div class="station station--sales" data-agent="sales_agent">
+        <div class="bubble" data-role="bubble"></div>
+        <div class="tool-badge" data-role="tool"></div>
+        <div class="sprite" data-role="sprite"></div>
+        <div class="desk"></div>
+        <div class="nameplate">SALES</div>
+      </div>
+
+      <!-- Customer waits at the front counter. -->
+      <div class="station station--customer" data-agent="customer">
+        <div class="bubble" data-role="bubble"></div>
+        <div class="tool-badge" data-role="tool"></div>
+        <div class="sprite" data-role="sprite"></div>
+        <div class="desk desk--counter"></div>
+        <div class="nameplate">CUSTOMER</div>
+      </div>
+    </section>
+
+    <!-- Session inspector / activity feed. -->
+    <aside class="inspector" aria-label="Activity feed">
+      <h2 class="inspector-title">ACTIVITY FEED</h2>
+      <ol id="feed" class="feed"></ol>
+    </aside>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

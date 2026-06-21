@@ -1,0 +1,525 @@
+/* =====================================================================================
+   viewer/style.css — Beaver's Choice pixel office
+   -------------------------------------------------------------------------------------
+   Original pixel art authored in CSS (no external image assets), so the viewer is fully
+   self-contained and reproducible. Sprites are composed from solid blocks (the classic
+   "no border-radius + hard shadows" pixel look) and animated per agent state.
+   ===================================================================================== */
+
+:root {
+  /* --- Retro office palette --- */
+  --bg-deep:      #1b1726;   /* window-night backdrop      */
+  --wall:         #3a3450;   /* upper wall                 */
+  --wall-trim:    #524a72;   /* wall skirting / trim       */
+  --floor-a:      #6b4f3a;   /* wood floor plank A         */
+  --floor-b:      #5d4632;   /* wood floor plank B         */
+  --lobby-a:      #cdbfa6;   /* lobby tile A (light)       */
+  --lobby-b:      #b8aa8d;   /* lobby tile B (light)       */
+  --desk:         #8a5a3b;   /* desk top                   */
+  --desk-dark:    #6e4730;   /* desk front / shadow        */
+  --panel:        #221d33;   /* UI panel background        */
+  --panel-line:   #3d3557;   /* UI borders                 */
+  --ink:          #f4ecd6;   /* primary text (warm cream)  */
+  --ink-dim:      #b3a9c9;   /* secondary text             */
+  --crt:          #7CF2C8;   /* CRT-green accent           */
+  --skin:         #e8b98c;   /* sprite face                */
+  --skin-dark:    #c8966b;   /* sprite face shadow         */
+
+  /* --- Per-agent accent colors --- */
+  --c-orchestrator: #f2b134;
+  --c-inventory:    #5fb96a;
+  --c-quoting:      #4aa3e0;
+  --c-sales:        #e0664a;
+  --c-customer:     #9b6ad1;
+
+  --px: 4px;                 /* base pixel unit for sprite scaling */
+}
+
+* { box-sizing: border-box; }
+
+/* The [hidden] attribute must win over component `display` rules (e.g. flex). */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--ink);
+  font-family: "Press Start 2P", "Courier New", monospace;
+  /* Keep every scaled block crisp. */
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+}
+
+/* =================================================================================== */
+/* Top bar / controls                                                                  */
+/* =================================================================================== */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border-bottom: 3px solid var(--panel-line);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--crt);
+  text-shadow: 2px 2px 0 #00000088;
+}
+
+.title-sub { color: var(--ink-dim); font-size: 9px; }
+
+.controls { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+
+.mode-toggle { display: flex; border: 3px solid var(--panel-line); }
+
+.mode-btn,
+.ctrl-btn {
+  font-family: inherit;
+  font-size: 9px;
+  color: var(--ink-dim);
+  background: #2c2640;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.mode-btn + .mode-btn { border-left: 3px solid var(--panel-line); }
+.mode-btn.is-active { background: var(--crt); color: #11210f; }
+.mode-btn:hover:not(.is-active),
+.ctrl-btn:hover { color: var(--ink); }
+
+.replay-controls { display: flex; align-items: center; gap: 10px; }
+
+.ctrl-btn {
+  border: 3px solid var(--panel-line);
+  padding: 6px 10px;
+  line-height: 1;
+}
+
+.speed { font-size: 8px; color: var(--ink-dim); display: flex; align-items: center; gap: 6px; }
+
+.speed select {
+  font-family: inherit;
+  font-size: 8px;
+  background: #2c2640;
+  color: var(--ink);
+  border: 3px solid var(--panel-line);
+  padding: 4px;
+}
+
+.status { display: flex; align-items: center; gap: 8px; font-size: 8px; color: var(--ink-dim); }
+
+.status-dot {
+  width: 10px; height: 10px;
+  background: #888;
+  box-shadow: 0 0 0 2px #00000055;
+  display: inline-block;
+}
+.status-dot.is-live   { background: var(--crt);    animation: blink 1.1s steps(2) infinite; }
+.status-dot.is-idle   { background: #d8c14a; }
+.status-dot.is-error  { background: var(--c-sales); }
+
+@keyframes blink { 50% { opacity: 0.35; } }
+
+/* =================================================================================== */
+/* Stage layout                                                                        */
+/* =================================================================================== */
+
+.stage {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0;
+  height: calc(100vh - 64px);
+}
+
+/* =================================================================================== */
+/* The office room                                                                     */
+/* =================================================================================== */
+
+.office {
+  position: relative;
+  overflow: hidden;
+  /* Wall (top ~38%) over the floor zones drawn below. */
+  background:
+    linear-gradient(var(--wall) 0 36%, var(--wall-trim) 36% 39%, var(--bg-deep) 39%);
+}
+
+/* --- Floor zones --- */
+.zone { position: absolute; pointer-events: none; }
+.zone--office {
+  inset: 39% 34% 0 0;
+  background:
+    repeating-linear-gradient(0deg, #00000022 0 2px, transparent 2px 46px),
+    repeating-linear-gradient(90deg, var(--floor-a) 0 48px, var(--floor-b) 48px 96px);
+}
+.zone--lobby {
+  top: 39%; right: 0; bottom: 0; left: 66%;
+  background:
+    repeating-conic-gradient(var(--lobby-a) 0% 25%, var(--lobby-b) 0% 50%) 0 0 / 34px 34px;
+  box-shadow: inset 3px 0 0 0 #00000033;
+}
+
+/* Reception counter / glass partition between lobby and office. */
+.partition {
+  position: absolute;
+  top: 30%; left: 66%; bottom: 0;
+  width: 10px;
+  transform: translateX(-50%);
+  background: linear-gradient(#6f6796, #4a4370);
+  box-shadow: 0 0 0 2px #00000055, inset 0 0 0 2px #ffffff22;
+  z-index: 1;
+}
+.partition-sign {
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  writing-mode: vertical-rl;
+  font-size: 6px;
+  letter-spacing: 2px;
+  color: var(--crt);
+  background: #1d1830;
+  padding: 6px 3px;
+  border: 2px solid #000;
+}
+
+/* Entrance door on the lobby's back wall. */
+.lobby-door {
+  position: absolute;
+  top: 21%; left: 84%;
+  width: 50px; height: 18%;
+  transform: translateX(-50%);
+  background: linear-gradient(#5a3f2c, #6e4b34);
+  border: 3px solid #2c1d12;
+  box-shadow: inset 0 0 0 3px #00000033;
+  z-index: 0;
+}
+.lobby-door::after {
+  content: "";
+  position: absolute;
+  top: 50%; right: 6px;
+  width: 5px; height: 5px;
+  background: var(--c-orchestrator);
+  transform: translateY(-50%);
+}
+
+/* Small zone captions. */
+.zone-label {
+  position: absolute;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #ffffff66;
+  pointer-events: none;
+  z-index: 1;
+}
+.zone-label--office { left: 4%; top: 42%; }
+.zone-label--lobby  { right: 4%; top: 42%; color: var(--c-customer); }
+
+.office::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 90% at 50% 30%, transparent 55%, #00000066 100%);
+  pointer-events: none;
+}
+
+/* --- Stations: a desk + sprite + labels, positioned around the room. --- */
+.station {
+  position: absolute;
+  width: 120px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.station--orchestrator { left: 49%; top: 59%; --accent: var(--c-orchestrator); z-index: 3; }
+.station--inventory    { left: 14%; top: 62%; --accent: var(--c-inventory);    z-index: 4; }
+.station--quoting      { left: 31%; top: 37%; --accent: var(--c-quoting);      z-index: 4; }
+.station--sales        { left: 31%; top: 83%; --accent: var(--c-sales);        z-index: 5; }
+.station--customer     { left: 84%; top: 72%; --accent: var(--c-customer);     z-index: 5; }
+
+/* Stations are dim until the agent has appeared in the transcript. */
+.station { opacity: 0.42; filter: grayscale(0.5); transition: opacity 0.3s, filter 0.3s; }
+.station.is-active { opacity: 1; filter: none; }
+
+/* --- Nameplate --- */
+.nameplate {
+  margin-top: 6px;
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  background: #00000066;
+  padding: 4px 5px;
+  display: inline-block;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* =================================================================================== */
+/* Desk                                                                                */
+/* =================================================================================== */
+
+.desk {
+  width: 86px;
+  height: 26px;
+  margin: -10px auto 0;
+  background: var(--desk);
+  border-top: 3px solid #00000033;
+  box-shadow:
+    0 4px 0 0 var(--desk-dark),
+    0 8px 0 0 #00000055;
+  position: relative;
+}
+/* A little monitor on the desk that lights up in the agent accent when working. */
+.desk::before {
+  content: "";
+  position: absolute;
+  top: -16px; left: 50%;
+  width: 22px; height: 16px;
+  transform: translateX(-50%);
+  background: #15131f;
+  border: 2px solid #000;
+  box-shadow: inset 0 0 0 2px #2a2740;
+}
+.station.is-working .desk::before {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 10px 1px var(--accent);
+  background: #0d2620;
+}
+
+.desk--counter {
+  width: 100px;
+  background: var(--wall-trim);
+  box-shadow: 0 4px 0 0 #3c3556, 0 8px 0 0 #00000055;
+}
+.desk--counter::before { display: none; }
+
+/* =================================================================================== */
+/* Sprite — a blocky pixel office worker, tinted per agent                             */
+/* =================================================================================== */
+
+.sprite {
+  position: relative;
+  width: calc(var(--px) * 8);
+  height: calc(var(--px) * 11);
+  margin: 0 auto;
+  z-index: 2;
+  animation: idle-bob 1.4s steps(2) infinite;
+}
+
+/* Head */
+.sprite::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  width: calc(var(--px) * 5);
+  height: calc(var(--px) * 5);
+  transform: translateX(-50%);
+  background: var(--skin);
+  /* hard pixel shading + two eye pixels via layered shadows */
+  box-shadow:
+    inset calc(var(--px) * -1) 0 0 0 var(--skin-dark),
+    /* hair/cap in the agent accent sits just above the head */
+    0 calc(var(--px) * -2) 0 0 var(--accent),
+    calc(var(--px) * -1.5) 0 0 0 var(--accent) inset;
+}
+/* Eyes */
+.sprite > i.eyes {
+  position: absolute;
+  top: calc(var(--px) * 2.4);
+  left: 50%;
+  width: var(--px); height: var(--px);
+  transform: translateX(-50%);
+  background: #1d1830;
+  box-shadow: calc(var(--px) * 1.6) 0 0 0 #1d1830;
+}
+
+/* Torso (uniform in accent color) */
+.sprite::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--px) * 5);
+  left: 50%;
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 4);
+  transform: translateX(-50%);
+  background: var(--accent);
+  box-shadow: inset calc(var(--px) * -1) 0 0 0 #00000033;
+}
+
+/* Legs — two blocks that alternate while walking. */
+.sprite > i.legs,
+.sprite > i.legs::before {
+  position: absolute;
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 2);
+  background: #2c2740;
+}
+.sprite > i.legs {
+  bottom: 0;
+  left: calc(50% - var(--px) * 2.2);
+}
+.sprite > i.legs::before {
+  content: "";
+  left: calc(var(--px) * 2.4);
+  bottom: 0;
+}
+
+/* --- Sprite animations --- */
+@keyframes idle-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(calc(var(--px) * -0.5)); }
+}
+
+/* Walk-in: slide from the room entrance to the desk. */
+.station.entering .sprite { animation: walk-in 0.7s steps(6) 1; }
+@keyframes walk-in {
+  from { transform: translateX(calc(var(--px) * -14)); }
+  to   { transform: translateX(0); }
+}
+.station.is-walking .sprite > i.legs { animation: step 0.28s steps(2) infinite; }
+@keyframes step {
+  50% { transform: translateX(calc(var(--px) * 1.4)); }
+}
+
+/* Thinking: gentle lean. Working/typing: faster bob. */
+.station.is-thinking .sprite { animation: idle-bob 0.8s steps(2) infinite; }
+.station.is-working  .sprite { animation: type-bob 0.34s steps(2) infinite; }
+@keyframes type-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(calc(var(--px) * -0.6)); }
+}
+
+/* =================================================================================== */
+/* Status bubble + tool badge                                                          */
+/* =================================================================================== */
+
+.bubble {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  min-width: 16px;
+  padding: 6px 7px;
+  background: var(--ink);
+  color: #1d1830;
+  font-size: 7px;
+  line-height: 1.4;
+  border: 2px solid #000;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.bubble::after { /* little tail */
+  content: "";
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 6px; height: 6px;
+  background: var(--ink);
+  border-right: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+.station.is-thinking .bubble {
+  opacity: 1;
+  animation: pop 0.2s steps(2);
+}
+
+.tool-badge {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  padding: 5px 7px;
+  background: var(--accent);
+  color: #11210f;
+  font-size: 7px;
+  border: 2px solid #000;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  text-transform: lowercase;
+}
+.station.is-working .tool-badge { opacity: 1; animation: pop 0.2s steps(2); }
+/* When the tool badge is showing, hide the thinking bubble to avoid overlap. */
+.station.is-working .bubble { opacity: 0; }
+
+@keyframes pop {
+  from { transform: translate(-50%, 4px) scale(0.6); }
+  to   { transform: translate(-50%, 0) scale(1); }
+}
+
+/* Result flash: a quick ring around the sprite. */
+.station.flash-result .sprite::after { animation: result-flash 0.5s steps(3) 1; }
+@keyframes result-flash {
+  0%   { box-shadow: 0 0 0 2px var(--crt); }
+  100% { box-shadow: inset calc(var(--px) * -1) 0 0 0 #00000033; }
+}
+
+/* Done: a check mark badge that settles above the desk. */
+.station.is-done .bubble {
+  opacity: 1;
+  background: var(--crt);
+  content: "";
+}
+
+/* =================================================================================== */
+/* Inspector / activity feed                                                           */
+/* =================================================================================== */
+
+.inspector {
+  background: var(--panel);
+  border-left: 3px solid var(--panel-line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.inspector-title {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--crt);
+  border-bottom: 3px solid var(--panel-line);
+}
+
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.feed-row {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  gap: 8px;
+  padding: 7px 6px;
+  border-bottom: 2px solid #00000033;
+  font-size: 7px;
+  line-height: 1.6;
+  animation: pop 0.18s steps(2);
+}
+.feed-row .tick { background: var(--accent); width: 6px; height: 100%; min-height: 14px; }
+.feed-row .body { color: var(--ink-dim); word-break: break-word; }
+.feed-row .who  { color: var(--accent); }
+.feed-row .what { color: var(--ink); }
+
+/* Accent each feed row by agent. */
+.feed-row[data-agent="orchestrator_agent"] { --accent: var(--c-orchestrator); }
+.feed-row[data-agent="inventory_agent"]    { --accent: var(--c-inventory); }
+.feed-row[data-agent="quoting_agent"]      { --accent: var(--c-quoting); }
+.feed-row[data-agent="sales_agent"]        { --accent: var(--c-sales); }
+.feed-row[data-agent="customer"]           { --accent: var(--c-customer); }
+
+/* Tighter layout on small screens. */
+@media (max-width: 880px) {
+  .stage { grid-template-columns: 1fr; height: auto; }
+  .office { height: 60vh; }
+  .inspector { height: 32vh; }
+}
