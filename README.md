@@ -70,6 +70,10 @@ Output will include:
 - Final financial report
 - A `test_results.csv` file with all interaction logs
 
+> The SQLite database `beavers_choice.db` is **created automatically** at the start of each
+> run (rebuilt from `quote_requests.csv`, `quotes.csv`, and the in-code inventory seed), so
+> it is not tracked in the repository — you do not need to provide or download it.
+
 ---
 
 ## Stand-out Work (for the project reviewer)
