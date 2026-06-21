@@ -1184,6 +1184,17 @@ def _reset_transcript() -> None:
 # reply, so we strip it and keep only the substantive content.
 _SECTION_HEADER_RE = re.compile(r"#{2,4}\s*\d+\.\s*([^\n:]*?):?\s*\n")
 
+# Any leftover markdown ATX header line (e.g. "### 1. Order Fulfillment Status:" or
+# "## Summary"); we flatten these to plain text so no markup/numbering reaches the customer.
+_MD_HEADER_RE = re.compile(r"^[ \t]{0,3}#{1,6}[ \t]*(?:\d+\.[ \t]*)?", re.MULTILINE)
+
+
+def _flatten_markdown_headers(text: str) -> str:
+    """Strip markdown header markup ('#' prefixes and '1.' section numbering) from any
+    heading lines, leaving the heading wording intact. This guarantees no template/markup
+    syntax reaches the customer even when the model invents its own section titles."""
+    return _MD_HEADER_RE.sub("", text)
+
 
 def _clean_customer_response(text: str) -> str:
     """
@@ -1192,8 +1203,9 @@ def _clean_customer_response(text: str) -> str:
     The orchestrator sometimes passes a worker's structured summary
     ("### 1. Task outcome (short version): ..." etc.) straight through to the customer.
     This keeps the most complete section (the detailed version, falling back to the short
-    version) and appends any non-trivial "Additional context" as a closing note. If no
-    scaffolding is detected, the trimmed original text is returned unchanged.
+    version) and appends any non-trivial "Additional context" as a closing note. As a final
+    pass, any remaining markdown section headers (numbered or plain) are flattened to plain
+    text so no markup leaks even when the model invents its own headings.
 
     Args:
         text: The raw response returned by the orchestrator agent.
@@ -1207,7 +1219,7 @@ def _clean_customer_response(text: str) -> str:
     # Split on "### N. <title>:" headers; the capturing group yields the section titles.
     parts = _SECTION_HEADER_RE.split(text)
     if len(parts) < 3:
-        return text.strip()
+        return _flatten_markdown_headers(text).strip()
 
     # parts == [preamble, title1, body1, title2, body2, ...]
     titles_bodies = list(zip(parts[1::2], parts[2::2]))
@@ -1224,7 +1236,9 @@ def _clean_customer_response(text: str) -> str:
                 body = value
                 break
     if not body:
-        return text.strip()
+        # Recognized scaffolding numbering but unrecognized titles (the model used its own
+        # section names): keep the content, just strip the markup/numbering.
+        return _flatten_markdown_headers(text).strip()
 
     for key, value in sections.items():
         if "additional context" in key:
@@ -1232,7 +1246,7 @@ def _clean_customer_response(text: str) -> str:
                 body = f"{body}\n\n{value}"
             break
 
-    return body.strip()
+    return _flatten_markdown_headers(body).strip()
 
 
 def call_your_multi_agent_system(request: str) -> str:
