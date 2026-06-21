@@ -57,9 +57,9 @@ This project uses a custom OpenAI-compatible proxy hosted at https://openai.voca
 
 ## How to Run the Project
 
-Start by defining your agents in the `"YOUR MULTI AGENT STARTS HERE"` section inside `template.py`. Once your agent team is ready:
+Start by defining your agents in the `"YOUR MULTI AGENT STARTS HERE"` section inside `project_solution.py`. Once your agent team is ready:
 
-1. Run the `run_test_scenarios()` function at the bottom of the script.
+1. Run the `run_test_scenarios()` function at the bottom of the script (e.g. `python project_solution.py`).
 2. This will simulate a series of customer requests.
 3. Your system should respond by coordinating inventory checks, generating quotes, and processing orders.
 
@@ -72,27 +72,66 @@ Output will include:
 
 ---
 
-## Pixel Office Viewer (stand-out feature)
+## Stand-out Work (for the project reviewer)
 
-The system can stream its agent activity to a self-contained **pixel-art office** that
-animates each agent (orchestrator, inventory, quoting, sales, customer) as they think,
-call tools, and finish — no external extension required.
+Beyond the graded `project_solution.py`, this repository includes three optional stand-out
+features. **None of them are required to run or grade the project** — `project_solution.py`
+is fully self-contained (its transcript hook is wrapped in `try/except` and gated by an
+env flag, so the system runs and produces `test_results.csv` even if the files below are
+absent). The extras are kept in their own files so the graded path stays untouched:
 
-How it works:
+| File | What it adds |
+|------|--------------|
+| `agent_transcript.py` | A `smolagents` step-callback observer that records each agent state change to `transcript.jsonl`. |
+| `viewer/` | A zero-dependency, stdlib-only **pixel-art office** that animates the run in the browser. |
+| `customer_negotiation_demo.py` | An LLM-driven **customer agent** that negotiates (up to 3 rounds) with the real company team. |
+| `workflow_diagram.mmd` / `workflow_diagram.png` | A Mermaid architecture diagram of the agents and their tools. |
 
-1. While the system runs, `agent_transcript.py` appends one JSON line per agent state
-   change to `transcript.jsonl` (enabled by default; disable with `AGENT_TRANSCRIPT_LOG=0`).
-2. A tiny stdlib server tails that file and serves a browser UI.
+### How to see the pixel-art animation
 
-Run it in a second terminal:
+The viewer animates a `transcript.jsonl` file. That file is **gitignored**, so a fresh
+clone won't have one yet — you must run the system at least once to generate it.
+
+**Option A — watch a finished run (REPLAY, simplest):**
+
+1. Generate a transcript by running the graded system once:
+   ```
+   python project_solution.py
+   ```
+   This writes `transcript.jsonl` to the repo root (logging is on by default; disable with
+   `AGENT_TRANSCRIPT_LOG=0`).
+2. Start the viewer:
+   ```
+   python viewer/server.py
+   ```
+3. Open `http://127.0.0.1:8000/` (or VS Code's Simple Browser) and click **REPLAY** to play
+   the run back at adjustable speed.
+
+**Option B — watch it happen live (LIVE):**
+
+1. In terminal 1, start the viewer: `python viewer/server.py`
+2. Open `http://127.0.0.1:8000/` and click **LIVE**.
+3. In terminal 2, run the system: `python project_solution.py`
+4. The office animates each agent (orchestrator, inventory, quoting, sales, customer) as it
+   thinks, calls tools, and finishes. The right-hand **activity feed** lists each event,
+   color-coded per agent.
+
+### How to see the customer-negotiation demo
+
+For a richer animation that includes a haggling customer, run the negotiation demo instead
+of (or alongside) the steps above:
 
 ```
-python viewer/server.py
+python customer_negotiation_demo.py
 ```
 
-Then open `http://127.0.0.1:8000/` (or VS Code's Simple Browser). Use **LIVE** to watch a
-run in real time, or **REPLAY** to play a finished `transcript.jsonl` back at adjustable
-speed. The right-hand **activity feed** shows each event, color-coded per agent.
+It drives the *real* company team through up to three negotiation rounds per persona and
+writes to the same `transcript.jsonl`, so the viewer (LIVE or REPLAY) shows the full
+back-and-forth. This demo only affects itself — it never changes the graded
+`run_test_scenarios()` path.
+
+> Both `project_solution.py` and `customer_negotiation_demo.py` need a valid
+> `UDACITY_OPENAI_API_KEY` in your `.env` (see **Local setup instructions** above).
 
 ---
 
@@ -111,8 +150,10 @@ speed. The right-hand **activity feed** shows each event, color-coded per agent.
 Make sure to submit the following files:
 
 1. Your completed `project_solution.py` with all agent logic
-2. A **workflow diagram** describing your agent architecture and data flow
-3. A `README.txt` or `design_notes.txt` explaining how your system works
+2. A **workflow diagram** describing your agent architecture and data flow (`workflow_diagram.png` / `workflow_diagram.mmd`)
+3. A design/reflection write-up explaining how your system works (`reflection_report.md`, plus this `README.md`)
 4. Outputs from your test run (like `test_results.csv`)
+
+Optional stand-out files: `agent_transcript.py`, the `viewer/` pixel-office, and `customer_negotiation_demo.py` (see **Stand-out Work** above).
 
 ---
