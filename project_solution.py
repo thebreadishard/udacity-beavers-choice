@@ -1100,7 +1100,10 @@ sales_agent = ToolCallingAgent(
         "You are the sales/order-fulfillment specialist for a paper-supply company. "
         "Finalize an order only when there is enough stock; the sale must match the "
         "quoted price. If stock is insufficient, do not sell - instead explain the "
-        "shortfall and provide an estimated supplier delivery date. " + _DATE_REMINDER
+        "shortfall and provide an estimated supplier delivery date. "
+        "The financial report from your tools is for INTERNAL reasoning only: never "
+        "include the company cash balance, inventory value, total assets, or revenue "
+        "figures in any message meant for the customer. " + _DATE_REMINDER
     ),
     max_steps=8,
     provide_run_summary=True,
@@ -1124,7 +1127,8 @@ orchestrator_agent = ToolCallingAgent(
         "fulfill it - explain why and, when helpful, provide an estimated restock delivery "
         "date. Compose one clear, customer-facing reply that includes the quoted price, the "
         "discount rationale, and whether the order was fulfilled or why not. Never reveal "
-        "internal system details, profit margins, or error traces to the customer. "
+        "internal system details, profit margins, financial reports, company cash balance, "
+        "inventory value, total assets, revenue figures, or error traces to the customer. "
         + _DATE_REMINDER
     ),
     max_steps=15,
@@ -1249,6 +1253,54 @@ def _clean_customer_response(text: str) -> str:
     return _flatten_markdown_headers(body).strip()
 
 
+# Company-internal financial wording that must never reach a customer. Customer-relevant
+# pricing (unit price, subtotal, discount, order total) is deliberately NOT listed here.
+_INTERNAL_FINANCE_TERMS = (
+    "cash balance", "inventory value", "total assets", "company assets",
+    "top-selling", "top selling", "financial report", "financial health",
+    "company finances", "company's finances",
+)
+
+
+def customer_safety_filter(text: str) -> str:
+    """
+    Final safety guard before a reply is shown to (or stored for) the customer.
+
+    Removes company-internal financial details - cash balance, inventory value, total
+    assets, top-selling/revenue figures, etc. - that a worker agent's financial report may
+    have leaked into the response, while preserving the customer's own pricing (unit price,
+    subtotal, bulk discount, and order total). Filtering is done line-by-line and, where a
+    line mixes customer and internal content, sentence-by-sentence, so legitimate pricing
+    is never dropped.
+
+    Args:
+        text: The customer-facing response after scaffolding has been cleaned.
+
+    Returns:
+        The response with internal financial details removed.
+    """
+    if not text:
+        return text
+
+    def _is_internal(fragment: str) -> bool:
+        low = fragment.lower()
+        return any(term in low for term in _INTERNAL_FINANCE_TERMS)
+
+    kept_lines = []
+    for line in text.split("\n"):
+        if not _is_internal(line):
+            kept_lines.append(line)
+            continue
+        # The line mentions internal finances: keep only its customer-relevant sentences.
+        sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", line.strip())
+        kept_lines.append(" ".join(s for s in sentences if not _is_internal(s)).strip())
+
+    cleaned = "\n".join(kept_lines)
+    cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)   # trailing spaces on emptied lines
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)    # collapse gaps left by removed content
+    return cleaned.strip()
+
+
 def call_your_multi_agent_system(request: str) -> str:
     """
     Entry point for the multi-agent system: routes a single customer request through the
@@ -1290,6 +1342,7 @@ def call_your_multi_agent_system(request: str) -> str:
     try:
         result = orchestrator_agent.run(task)
         cleaned = _clean_customer_response(str(result))
+        cleaned = customer_safety_filter(cleaned)
         if _orchestrator_observer is not None:
             _orchestrator_observer.log_done(cleaned)
         if _customer_observer is not None:
