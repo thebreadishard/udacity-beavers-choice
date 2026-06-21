@@ -222,6 +222,58 @@ html, body {
 .zone-label--office { left: 4%; top: 42%; }
 .zone-label--lobby  { right: 4%; top: 42%; color: var(--c-customer); }
 
+/* --- Decorative office props --- */
+.prop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+/* A stack of cardboard parcels (near the Inventory agent). */
+.prop--boxes {
+  width: 28px; height: 22px;
+  background: #bb8e54;
+  border: 2px solid #6e4a23;
+  box-shadow: inset calc(var(--px) * -1) 0 0 0 #00000022;
+}
+.prop--boxes::before { /* packing tape down the middle */
+  content: "";
+  position: absolute; top: -2px; bottom: -2px; left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  background: #8a6334;
+}
+.prop--boxes::after { /* a smaller box stacked on top */
+  content: "";
+  position: absolute; top: -15px; left: -2px;
+  width: 17px; height: 14px;
+  background: #c79a5b;
+  border: 2px solid #6e4a23;
+}
+/* A potted plant. */
+.prop--plant {
+  width: 18px; height: 28px;
+}
+.prop--plant::before { /* leaves */
+  content: "";
+  position: absolute; top: 0; left: 50%;
+  width: 18px; height: 18px;
+  transform: translateX(-50%);
+  background: #4f9c4a;
+  box-shadow:
+    0 calc(var(--px) * -1) 0 calc(var(--px) * -1) #5bb054,
+    calc(var(--px) * -1.4) calc(var(--px) * 0.6) 0 calc(var(--px) * -1) #3f8a3c,
+    calc(var(--px) * 1.4) calc(var(--px) * 0.6) 0 calc(var(--px) * -1) #3f8a3c;
+}
+.prop--plant::after { /* pot */
+  content: "";
+  position: absolute; bottom: 0; left: 50%;
+  width: 13px; height: 11px;
+  transform: translateX(-50%);
+  background: #b5663a;
+  border: 2px solid #7c3f22;
+}
+
 .office::after {
   content: "";
   position: absolute; inset: 0;
@@ -235,12 +287,15 @@ html, body {
   width: 120px;
   transform: translate(-50%, -50%);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.station--orchestrator { left: 49%; top: 59%; --accent: var(--c-orchestrator); z-index: 3; }
-.station--inventory    { left: 14%; top: 62%; --accent: var(--c-inventory);    z-index: 4; }
-.station--quoting      { left: 31%; top: 37%; --accent: var(--c-quoting);      z-index: 4; }
-.station--sales        { left: 31%; top: 83%; --accent: var(--c-sales);        z-index: 5; }
+.station--orchestrator { left: 50%; top: 68%; --accent: var(--c-orchestrator); z-index: 3; }
+.station--inventory    { left: 14%; top: 68%; --accent: var(--c-inventory);    z-index: 4; }
+.station--quoting      { left: 31%; top: 52%; --accent: var(--c-quoting);      z-index: 4; }
+.station--sales        { left: 33%; top: 84%; --accent: var(--c-sales);        z-index: 5; }
 .station--customer     { left: 84%; top: 72%; --accent: var(--c-customer);     z-index: 5; }
 
 /* Stations are dim until the agent has appeared in the transcript. */
@@ -249,6 +304,8 @@ html, body {
 
 /* --- Nameplate --- */
 .nameplate {
+  order: 3;
+  flex-basis: 100%;
   margin-top: 6px;
   font-size: 7px;
   letter-spacing: 1px;
@@ -263,22 +320,24 @@ html, body {
 /* Desk                                                                                */
 /* =================================================================================== */
 
+/* Horizontal desk sits behind; the agent stands in front of its lower edge. */
 .desk {
-  width: 86px;
-  height: 26px;
-  margin: -10px auto 0;
+  order: 1;
+  width: 60px;
+  height: 20px;
   background: var(--desk);
   border-top: 3px solid #00000033;
   box-shadow:
     0 4px 0 0 var(--desk-dark),
     0 8px 0 0 #00000055;
   position: relative;
+  z-index: 1;
 }
-/* A little monitor on the desk that lights up in the agent accent when working. */
+/* A little monitor on the back edge that lights up in the agent accent when working. */
 .desk::before {
   content: "";
   position: absolute;
-  top: -16px; left: 50%;
+  top: -16px; left: 28%;
   width: 22px; height: 16px;
   transform: translateX(-50%);
   background: #15131f;
@@ -290,22 +349,16 @@ html, body {
   background: #0d2620;
 }
 
-.desk--counter {
-  width: 100px;
-  background: var(--wall-trim);
-  box-shadow: 0 4px 0 0 #3c3556, 0 8px 0 0 #00000055;
-}
-.desk--counter::before { display: none; }
-
 /* =================================================================================== */
 /* Sprite — a blocky pixel office worker, tinted per agent                             */
 /* =================================================================================== */
 
 .sprite {
+  order: 2;
   position: relative;
   width: calc(var(--px) * 8);
   height: calc(var(--px) * 11);
-  margin: 0 auto;
+  margin: -12px 0 0;
   z-index: 2;
   animation: idle-bob 1.4s steps(2) infinite;
 }
@@ -380,17 +433,28 @@ html, body {
   from { transform: translateX(calc(var(--px) * -14)); }
   to   { transform: translateX(0); }
 }
+/* The customer enters from the lobby door above, walking down toward reception. */
+.station--customer.entering .sprite { animation: walk-in-down 0.7s steps(6) 1; }
+@keyframes walk-in-down {
+  from { transform: translateY(calc(var(--px) * -16)); }
+  to   { transform: translateY(0); }
+}
 .station.is-walking .sprite > i.legs { animation: step 0.28s steps(2) infinite; }
 @keyframes step {
   50% { transform: translateX(calc(var(--px) * 1.4)); }
 }
 
-/* Thinking: gentle lean. Working/typing: faster bob. */
-.station.is-thinking .sprite { animation: idle-bob 0.8s steps(2) infinite; }
-.station.is-working  .sprite { animation: type-bob 0.34s steps(2) infinite; }
-@keyframes type-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(calc(var(--px) * -0.6)); }
+/* Thinking / working: the agent steps a little to the side (so the monitor isn't
+   directly behind their head) and bobs. */
+.station.is-thinking .sprite { animation: busy-bob 0.8s steps(2) infinite; }
+.station.is-working  .sprite { animation: busy-type 0.34s steps(2) infinite; }
+@keyframes busy-bob {
+  0%, 100% { transform: translateX(calc(var(--px) * 2)); }
+  50%      { transform: translate(calc(var(--px) * 2), calc(var(--px) * -0.5)); }
+}
+@keyframes busy-type {
+  0%, 100% { transform: translateX(calc(var(--px) * 2)); }
+  50%      { transform: translate(calc(var(--px) * 2), calc(var(--px) * -0.6)); }
 }
 
 /* =================================================================================== */
@@ -400,7 +464,8 @@ html, body {
 .bubble {
   position: absolute;
   left: 50%;
-  top: -10px;
+  top: -34px;
+  z-index: 6;
   transform: translateX(-50%);
   min-width: 16px;
   padding: 6px 7px;
@@ -431,7 +496,8 @@ html, body {
 .tool-badge {
   position: absolute;
   left: 50%;
-  top: -12px;
+  top: -36px;
+  z-index: 6;
   transform: translateX(-50%);
   padding: 5px 7px;
   background: var(--accent);
