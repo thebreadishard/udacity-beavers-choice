@@ -639,13 +639,23 @@ def _effective_date(as_of_date: str) -> str:
     return CURRENT_REQUEST_DATE or as_of_date
 
 
+# Generic words shared by many catalog entries. They must not, on their own, drive a
+# fuzzy match - otherwise an unknown item like "A3 paper" would silently resolve to the
+# first paper in the catalog ("A4 paper") purely because both contain the word "paper".
+GENERIC_ITEM_TOKENS = frozenset(
+    {"paper", "sized", "size", "sheet", "sheets", "of", "the", "a", "an", "and", "for"}
+)
+
+
 def resolve_item_name(item_name: str) -> Union[str, None]:
     """
     Map a free-text item description to an exact catalog item name.
 
     Transactions fail unless the exact catalog name is used, but customers (and the
-    LLM) often paraphrase. This resolver tries, in order: exact match, case-insensitive
-    match, then a simple substring overlap, returning the closest catalog name or None.
+    LLM) often paraphrase. This resolver tries, in order: exact match, substring match,
+    then a distinctive token-overlap. The token-overlap step ignores generic words (e.g.
+    "paper") and refuses to guess when the best match is ambiguous, returning None so the
+    caller reports "not found" instead of confidently quoting the wrong item.
 
     Args:
         item_name (str): The raw item name or description to resolve.
@@ -663,19 +673,32 @@ def resolve_item_name(item_name: str) -> Union[str, None]:
         if name.lower() == query:
             return name
 
+    # Past the exact check, a match must hinge on a distinctive (non-generic) word.
+    # A query made up only of generic words (e.g. "paper") is too ambiguous to resolve.
+    query_tokens = set(query.split()) - GENERIC_ITEM_TOKENS
+    if not query_tokens:
+        return None
+
     # 2. Substring match in either direction (e.g. "A4" -> "A4 paper").
     for name in CATALOG_NAMES:
         lowered = name.lower()
         if query in lowered or lowered in query:
             return name
 
-    # 3. Token-overlap fallback: pick the catalog name sharing the most words.
-    query_tokens = set(query.split())
-    best_name, best_overlap = None, 0
+    # 3. Distinctive token-overlap fallback. Generic words (e.g. "paper") are stripped so
+    #    a match must share a meaningful, specific word. If two or more catalog items tie
+    #    for the best overlap the request is ambiguous, so we decline rather than guess.
+    best_name, best_overlap, best_is_unique = None, 0, False
     for name in CATALOG_NAMES:
-        overlap = len(query_tokens & set(name.lower().split()))
+        name_tokens = set(name.lower().split()) - GENERIC_ITEM_TOKENS
+        overlap = len(query_tokens & name_tokens)
         if overlap > best_overlap:
-            best_name, best_overlap = name, overlap
+            best_name, best_overlap, best_is_unique = name, overlap, True
+        elif overlap == best_overlap and overlap > 0:
+            best_is_unique = False
+
+    if best_overlap == 0 or not best_is_unique:
+        return None
 
     return best_name
 
