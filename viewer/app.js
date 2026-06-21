@@ -23,6 +23,11 @@
   // Transient station classes cleared whenever a new state arrives.
   const STATE_CLASSES = ["is-thinking", "is-working", "is-done"];
 
+  // Worker agents the orchestrator delegates to.
+  const WORKER_AGENTS = new Set(["inventory_agent", "quoting_agent", "sales_agent"]);
+  // Workers we've already shown a delegation handoff for (reset on each run).
+  const delegatedWorkers = new Set();
+
   // --- DOM references ---
   const stationEls = {};
   document.querySelectorAll(".station").forEach((el) => {
@@ -32,6 +37,7 @@
     if (sprite) sprite.innerHTML = '<i class="eyes"></i><i class="legs"></i>';
   });
 
+  const officeEl = document.getElementById("office");
   const feedEl = document.getElementById("feed");
   const statusDot = document.getElementById("status-dot");
   const statusText = document.getElementById("status-text");
@@ -205,7 +211,66 @@
       activate(station);
       applyState(station, ev);
     }
+    maybeHandoff(ev);
     addFeedRow(ev);
+  }
+
+  // ----------------------------------------------------------------------------------
+  // Work-item handoff — a little paper that flies between agents on task / completion.
+  // ----------------------------------------------------------------------------------
+
+  // Centre of an agent's sprite, expressed in coordinates local to the office element.
+  function spriteCenter(station, officeRect) {
+    const sprite = station.querySelector('[data-role="sprite"]') || station;
+    const r = sprite.getBoundingClientRect();
+    return {
+      x: r.left + r.width / 2 - officeRect.left,
+      y: r.top + r.height / 2 - officeRect.top,
+    };
+  }
+
+  // Toss a paper (kind "task") or a folder (kind "result") from one agent to another.
+  function flyWorkItem(fromAgent, toAgent, kind) {
+    const from = stationEls[fromAgent];
+    const to = stationEls[toAgent];
+    if (!from || !to || !officeEl) return;
+
+    const officeRect = officeEl.getBoundingClientRect();
+    const a = spriteCenter(from, officeRect);
+    const b = spriteCenter(to, officeRect);
+
+    const item = document.createElement("div");
+    item.className = "work-item" + (kind === "result" ? " work-item--result" : "");
+    item.style.left = a.x + "px";
+    item.style.top = a.y + "px";
+    item.style.setProperty("--dx", (b.x - a.x).toFixed(1) + "px");
+    item.style.setProperty("--dy", (b.y - a.y).toFixed(1) + "px");
+    officeEl.appendChild(item);
+
+    item.addEventListener("animationend", () => {
+      item.remove();
+      // The receiver acknowledges the handoff with a quick flash.
+      to.classList.add("flash-result");
+      setTimeout(() => to.classList.remove("flash-result"), 400);
+    });
+  }
+
+  // Map an agent state change to a handoff, mirroring the delegation flow:
+  //   customer -> orchestrator (request in), orchestrator -> worker (delegate),
+  //   worker -> orchestrator (answer back), orchestrator -> customer (quote out).
+  // Workers don't emit a "start" event, so we delegate on their first appearance.
+  function maybeHandoff(ev) {
+    if (WORKER_AGENTS.has(ev.agent) && !delegatedWorkers.has(ev.agent) && ev.state !== "done") {
+      delegatedWorkers.add(ev.agent);
+      flyWorkItem("orchestrator_agent", ev.agent, "task");
+      return;
+    }
+    if (ev.state === "start") {
+      if (ev.agent === "orchestrator_agent") flyWorkItem("customer", "orchestrator_agent", "task");
+    } else if (ev.state === "done") {
+      if (WORKER_AGENTS.has(ev.agent)) flyWorkItem(ev.agent, "orchestrator_agent", "result");
+      else if (ev.agent === "orchestrator_agent") flyWorkItem("orchestrator_agent", "customer", "result");
+    }
   }
 
   // ----------------------------------------------------------------------------------
@@ -314,6 +379,8 @@
   // ----------------------------------------------------------------------------------
 
   function resetAll() {
+    delegatedWorkers.clear();
+    if (officeEl) officeEl.querySelectorAll(".work-item").forEach((el) => el.remove());
     Object.values(stationEls).forEach((station) => {
       station.classList.remove("is-active", "entering", "is-walking", "flash-result",
         ...STATE_CLASSES);
