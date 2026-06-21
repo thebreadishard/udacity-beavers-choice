@@ -222,6 +222,57 @@ html, body {
 .zone-label--office { left: 4%; top: 42%; }
 .zone-label--lobby  { right: 4%; top: 42%; color: var(--c-customer); }
 
+/* --- Company logo: a framed pixel-art beaver sign on the office wall --- */
+.wall-logo {
+  position: absolute;
+  left: 33%; top: 4%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px 9px;
+  background: #efe6cf;
+  border: 4px solid var(--desk-dark);
+  box-shadow: 0 0 0 3px #241a12, 7px 7px 0 #00000055;
+  pointer-events: none;
+  z-index: 0;
+}
+.wall-logo__art { position: relative; width: 152px; height: 152px; }
+/* The beaver is one element; every pixel is an 8px box-shadow box. */
+.beaver {
+  position: absolute;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background: transparent;
+  box-shadow:
+    24px 0 0 0 #241a12, 32px 0 0 0 #241a12, 104px 0 0 0 #241a12, 112px 0 0 0 #241a12,
+    16px 8px 0 0 #241a12, 24px 8px 0 0 #8a5a3b, 32px 8px 0 0 #8a5a3b, 40px 8px 0 0 #241a12, 48px 8px 0 0 #241a12, 56px 8px 0 0 #241a12, 64px 8px 0 0 #241a12, 72px 8px 0 0 #241a12, 80px 8px 0 0 #241a12, 88px 8px 0 0 #241a12, 96px 8px 0 0 #241a12, 104px 8px 0 0 #8a5a3b, 112px 8px 0 0 #8a5a3b, 120px 8px 0 0 #241a12,
+    16px 16px 0 0 #241a12, 24px 16px 0 0 #8a5a3b, 32px 16px 0 0 #8a5a3b, 40px 16px 0 0 #8a5a3b, 48px 16px 0 0 #8a5a3b, 56px 16px 0 0 #8a5a3b, 64px 16px 0 0 #8a5a3b, 72px 16px 0 0 #8a5a3b, 80px 16px 0 0 #8a5a3b, 88px 16px 0 0 #8a5a3b, 96px 16px 0 0 #8a5a3b, 104px 16px 0 0 #8a5a3b, 112px 16px 0 0 #8a5a3b, 120px 16px 0 0 #241a12,
+    16px 24px 0 0 #241a12, 24px 24px 0 0 #8a5a3b, 32px 24px 0 0 #8a5a3b, 40px 24px 0 0 #8a5a3b, 48px 24px 0 0 #8a5a3b, 56px 24px 0 0 #8a5a3b, 64px 24px 0 0 #8a5a3b, 72px 24px 0 0 #8a5a3b, 80px 24px 0 0 #8a5a3b, 88px 24px 0 0 #8a5a3b, 96px 24px 0 0 #8a5a3b, 104px 24px 0 0 #8a5a3b, 112px 24px 0 0 #8a5a3b, 120px 24px 0 0 #241a12,
+    8px 32px 0 0 #241a12, 16px 32px 0 0 #8a5a3b, 24px 32px 0 0 #8a5a3b, 32px 32px 0 0 #8a5a3b, 40px 32px 0 0 #8a5a3b, 48px 32px 0 0 #8a5a3b, 56px 32px 0 0 #8a5a3b, 64px 32px 0 0 #8a5a3b, 72px 32px 0 0 #8a5a3b, 80px 32px 0 0 #8a5a3b, 88px 32px 0 0 #8a5a3b, 96px 32px 0 0 #8a5a3b, 104px 32px 0 0 #8a5a3b, 112px 32px 0 0 #8a5a3b, 120px 32px 0 0 #8a5a3b, 128px 32px 0 0 #241a12,
+    0 40px 0 0 #241a12, 8px 40px 0 0 #8a5a3b, 16px 40px 0 0 #8a5a3b, 24px 40px 0 0 #8a5a3b, 32px 40px 0 0 #f7f1e0, 40px 40px 0 0 #f7f1e0, 48px 40px 0 0 #8a5a3b, 56px 40px 0 0 #8a5a3b, 64px 40px 0 0 #8a5a3b, 72px 40px 0 0 #8a5a3b, 80px 40px 0 0 #8a5a3b, 88px 40px 0 0 #8a5a3b, 96px 40px 0 0 #f7f1e0, 104px 40px 0 0 #f7f1e0, 112px 40px 0 0 #8a5a3b, 120px 40px 0 0 #8a5a3b, 128px 40px 0 0 #8a5a3b, 136px 40px 0 0 #241a12,
+    0 48px 0 0 #241a12, 8px 48px 0 0 #8a5a3b, 16px 48px 0 0 #8a5a3b, 24px 48px 0 0 #8a5a3b, 32px 48px 0 0 #f7f1e0, 40px 48px 0 0 #241a12, 48px 48px 0 0 #8a5a3b, 56px 48px 0 0 #8a5a3b, 64px 48px 0 0 #8a5a3b, 72px 48px 0 0 #8a5a3b, 80px 48px 0 0 #8a5a3b, 88px 48px 0 0 #8a5a3b, 96px 48px 0 0 #f7f1e0, 104px 48px 0 0 #241a12, 112px 48px 0 0 #8a5a3b, 120px 48px 0 0 #8a5a3b, 128px 48px 0 0 #8a5a3b, 136px 48px 0 0 #241a12,
+    0 56px 0 0 #241a12, 8px 56px 0 0 #8a5a3b, 16px 56px 0 0 #8a5a3b, 24px 56px 0 0 #8a5a3b, 32px 56px 0 0 #8a5a3b, 40px 56px 0 0 #8a5a3b, 48px 56px 0 0 #8a5a3b, 56px 56px 0 0 #8a5a3b, 64px 56px 0 0 #8a5a3b, 72px 56px 0 0 #8a5a3b, 80px 56px 0 0 #8a5a3b, 88px 56px 0 0 #8a5a3b, 96px 56px 0 0 #8a5a3b, 104px 56px 0 0 #8a5a3b, 112px 56px 0 0 #8a5a3b, 120px 56px 0 0 #8a5a3b, 128px 56px 0 0 #8a5a3b, 136px 56px 0 0 #241a12,
+    0 64px 0 0 #241a12, 8px 64px 0 0 #8a5a3b, 16px 64px 0 0 #8a5a3b, 24px 64px 0 0 #8a5a3b, 32px 64px 0 0 #8a5a3b, 40px 64px 0 0 #8a5a3b, 48px 64px 0 0 #e8b98c, 56px 64px 0 0 #e8b98c, 64px 64px 0 0 #3a2516, 72px 64px 0 0 #3a2516, 80px 64px 0 0 #e8b98c, 88px 64px 0 0 #e8b98c, 96px 64px 0 0 #8a5a3b, 104px 64px 0 0 #8a5a3b, 112px 64px 0 0 #8a5a3b, 120px 64px 0 0 #8a5a3b, 128px 64px 0 0 #8a5a3b, 136px 64px 0 0 #241a12,
+    8px 72px 0 0 #241a12, 16px 72px 0 0 #8a5a3b, 24px 72px 0 0 #8a5a3b, 32px 72px 0 0 #8a5a3b, 40px 72px 0 0 #8a5a3b, 48px 72px 0 0 #e8b98c, 56px 72px 0 0 #e8b98c, 64px 72px 0 0 #3a2516, 72px 72px 0 0 #3a2516, 80px 72px 0 0 #e8b98c, 88px 72px 0 0 #e8b98c, 96px 72px 0 0 #8a5a3b, 104px 72px 0 0 #8a5a3b, 112px 72px 0 0 #8a5a3b, 120px 72px 0 0 #8a5a3b, 128px 72px 0 0 #241a12,
+    8px 80px 0 0 #241a12, 16px 80px 0 0 #8a5a3b, 24px 80px 0 0 #8a5a3b, 32px 80px 0 0 #8a5a3b, 40px 80px 0 0 #e8b98c, 48px 80px 0 0 #e8b98c, 56px 80px 0 0 #e8b98c, 64px 80px 0 0 #e8b98c, 72px 80px 0 0 #e8b98c, 80px 80px 0 0 #e8b98c, 88px 80px 0 0 #e8b98c, 96px 80px 0 0 #e8b98c, 104px 80px 0 0 #8a5a3b, 112px 80px 0 0 #8a5a3b, 120px 80px 0 0 #8a5a3b, 128px 80px 0 0 #241a12,
+    16px 88px 0 0 #241a12, 24px 88px 0 0 #8a5a3b, 32px 88px 0 0 #8a5a3b, 40px 88px 0 0 #e8b98c, 48px 88px 0 0 #e8b98c, 56px 88px 0 0 #f7f1e0, 64px 88px 0 0 #f7f1e0, 72px 88px 0 0 #f7f1e0, 80px 88px 0 0 #f7f1e0, 88px 88px 0 0 #e8b98c, 96px 88px 0 0 #e8b98c, 104px 88px 0 0 #8a5a3b, 112px 88px 0 0 #8a5a3b, 120px 88px 0 0 #241a12,
+    16px 96px 0 0 #241a12, 24px 96px 0 0 #8a5a3b, 32px 96px 0 0 #8a5a3b, 40px 96px 0 0 #241a12, 48px 96px 0 0 #241a12, 56px 96px 0 0 #f7f1e0, 64px 96px 0 0 #f7f1e0, 72px 96px 0 0 #f7f1e0, 80px 96px 0 0 #f7f1e0, 88px 96px 0 0 #241a12, 96px 96px 0 0 #241a12, 104px 96px 0 0 #8a5a3b, 112px 96px 0 0 #8a5a3b, 120px 96px 0 0 #241a12,
+    24px 104px 0 0 #241a12, 32px 104px 0 0 #8a5a3b, 40px 104px 0 0 #e8b98c, 48px 104px 0 0 #241a12, 56px 104px 0 0 #241a12, 64px 104px 0 0 #241a12, 72px 104px 0 0 #241a12, 80px 104px 0 0 #241a12, 88px 104px 0 0 #241a12, 96px 104px 0 0 #e8b98c, 104px 104px 0 0 #8a5a3b, 112px 104px 0 0 #241a12,
+    24px 112px 0 0 #241a12, 32px 112px 0 0 #8a5a3b, 40px 112px 0 0 #8a5a3b, 48px 112px 0 0 #e8b98c, 56px 112px 0 0 #241a12, 64px 112px 0 0 #cc3a3a, 72px 112px 0 0 #cc3a3a, 80px 112px 0 0 #241a12, 88px 112px 0 0 #e8b98c, 96px 112px 0 0 #8a5a3b, 104px 112px 0 0 #8a5a3b, 112px 112px 0 0 #241a12,
+    32px 120px 0 0 #241a12, 40px 120px 0 0 #8a5a3b, 48px 120px 0 0 #8a5a3b, 56px 120px 0 0 #e8b98c, 64px 120px 0 0 #241a12, 72px 120px 0 0 #241a12, 80px 120px 0 0 #e8b98c, 88px 120px 0 0 #8a5a3b, 96px 120px 0 0 #8a5a3b, 104px 120px 0 0 #241a12,
+    40px 128px 0 0 #241a12, 48px 128px 0 0 #8a5a3b, 56px 128px 0 0 #8a5a3b, 64px 128px 0 0 #8a5a3b, 72px 128px 0 0 #8a5a3b, 80px 128px 0 0 #8a5a3b, 88px 128px 0 0 #8a5a3b, 96px 128px 0 0 #241a12,
+    48px 136px 0 0 #241a12, 56px 136px 0 0 #241a12, 64px 136px 0 0 #241a12, 72px 136px 0 0 #241a12, 80px 136px 0 0 #241a12, 88px 136px 0 0 #241a12;
+}
+.wall-logo__word {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #5b3a25;
+}
+.wall-logo__word small { display: block; font-size: 6px; color: #8a5a3b; margin-top: 4px; }
+
 /* --- Decorative office props --- */
 .prop {
   position: absolute;
