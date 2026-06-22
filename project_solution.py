@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import re
+import json
 import time
 import dotenv
 import ast
@@ -1055,6 +1056,9 @@ inventory_agent = ToolCallingAgent(
         "You are the inventory specialist for a paper-supply company. Use your tools to "
         "report exact stock levels, identify items at or below their minimum, and place "
         "restock orders only when stock is low and the company can afford them. "
+        "Your stock counts, minimum-stock levels, and reorder/restock recommendations are "
+        "INTERNAL operational guidance for the manager only - they must never be repeated "
+        "to the customer. "
         + _DATE_REMINDER
     ),
     max_steps=8,
@@ -1101,9 +1105,11 @@ sales_agent = ToolCallingAgent(
         "Finalize an order only when there is enough stock; the sale must match the "
         "quoted price. If stock is insufficient, do not sell - instead explain the "
         "shortfall and provide an estimated supplier delivery date. "
-        "The financial report from your tools is for INTERNAL reasoning only: never "
-        "include the company cash balance, inventory value, total assets, or revenue "
-        "figures in any message meant for the customer. " + _DATE_REMINDER
+        "You may share an estimated delivery date with the customer as a plain availability "
+        "date, but financial reports (cash balance, inventory value, total assets, revenue) "
+        "and inventory internals (stock counts, minimum-stock levels, reorder/restock "
+        "actions) are for INTERNAL reasoning only and must never appear in a customer "
+        "message. " + _DATE_REMINDER
     ),
     max_steps=8,
     provide_run_summary=True,
@@ -1124,12 +1130,21 @@ orchestrator_agent = ToolCallingAgent(
         "inventory_agent to confirm availability; (3) ask the quoting_agent for a priced "
         "quote with any bulk discount; (4) if stock is sufficient, ask the sales_agent to "
         "finalize the order so the sale is recorded; if stock is insufficient, do not "
-        "fulfill it - explain why and, when helpful, provide an estimated restock delivery "
-        "date. Compose one clear, customer-facing reply that includes the quoted price, the "
-        "discount rationale, and whether the order was fulfilled or why not. Never reveal "
-        "internal system details, profit margins, financial reports, company cash balance, "
-        "inventory value, total assets, revenue figures, or error traces to the customer. "
-        + _DATE_REMINDER
+        "fulfill it and, when known, capture an estimated delivery date. "
+        "Then call final_answer with ONLY a JSON object (no prose, no markdown fences) that "
+        "records what happened, using exactly this schema: "
+        '{"items": [{"name": str, "quantity": int, "status": "fulfilled" | "unavailable", '
+        '"reason": "out_of_stock" | "insufficient_stock" | "not_in_catalog" | null, '
+        '"unit_price": number | null, "line_total": number | null, '
+        '"discount": str | null, "delivery_date": "YYYY-MM-DD" | null}], '
+        '"order_total": number | null}. '
+        "Set status to 'fulfilled' only when the sales_agent actually recorded the sale; "
+        "otherwise use 'unavailable' with the matching reason. Put the quoted unit price and "
+        "line total in unit_price/line_total, the bulk-discount text (e.g. '5% bulk "
+        "discount') in discount or null, and order_total as the sum of fulfilled line "
+        "totals. Use only values your tools returned. The schema has no field for internal "
+        "data (stock counts, minimum levels, reorder/restock notes, or financials), so do "
+        "not include any of it. " + _DATE_REMINDER
     ),
     max_steps=15,
 )
@@ -1253,45 +1268,76 @@ def _clean_customer_response(text: str) -> str:
     return _flatten_markdown_headers(body).strip()
 
 
-# Company-internal financial wording that must never reach a customer. Customer-relevant
-# pricing (unit price, subtotal, discount, order total) is deliberately NOT listed here.
+# Company-internal wording that must never reach a customer. Customer-relevant content -
+# unit price, subtotal, bulk discount, order total, fulfillment status, and the estimated
+# delivery date for an out-of-stock item - is deliberately NOT listed here so it survives.
 _INTERNAL_FINANCE_TERMS = (
+    # financial health (Rubric 7: internal financials)
     "cash balance", "inventory value", "total assets", "company assets",
     "top-selling", "top selling", "financial report", "financial health",
-    "company finances", "company's finances",
+    "company finances", "company's finances", "profit margin",
 )
+
+# Internal inventory-management and operational-planning wording (Rubric 7): minimum stock
+# levels, reorder/replenishment thresholds, restock/supplier ordering actions and advice,
+# and inventory-monitoring guidance. Customer-facing delivery dates use plain "delivery"/
+# "deliver"/"arrive" wording (no "restock"), so they are preserved.
+_INTERNAL_INVENTORY_TERMS = (
+    # minimum stock levels / reorder thresholds
+    "minimum stock", "min stock", "minimum level", "minimum stock level",
+    "below minimum", "above minimum", "at or below", "below the minimum",
+    "above the minimum", "stock level", "current stock", "stock available",
+    # reorder / replenishment / restock actions and recommendations
+    "reorder", "re-order", "replenish", "restock",
+    # inventory operations and monitoring jargon
+    "inventory management", "inventory status", "inventory system",
+    "check the inventory", "monitor the inventory", "monitor", "monitoring",
+    # internal operational advice / sourcing strategy
+    "proactively", "alternative source", "alternative supplier",
+    "alternative option", "alternative provider", "explore alternative",
+    "sourced from another", "potential gap", "gap in offerings",
+)
+
+_INTERNAL_TERMS = _INTERNAL_FINANCE_TERMS + _INTERNAL_INVENTORY_TERMS
 
 
 def customer_safety_filter(text: str) -> str:
     """
     Final safety guard before a reply is shown to (or stored for) the customer.
 
-    Removes company-internal financial details - cash balance, inventory value, total
-    assets, top-selling/revenue figures, etc. - that a worker agent's financial report may
-    have leaked into the response, while preserving the customer's own pricing (unit price,
-    subtotal, bulk discount, and order total). Filtering is done line-by-line and, where a
-    line mixes customer and internal content, sentence-by-sentence, so legitimate pricing
-    is never dropped.
+    Removes company-internal details that a worker agent's report may have leaked into the
+    response - financial figures (cash balance, inventory value, total assets, margins) and
+    internal inventory operations (minimum stock levels, reorder/restock thresholds and
+    actions, supplier ordering, inventory-monitoring advice) - while preserving everything
+    the customer needs: unit price, subtotal, bulk discount, order total, fulfillment
+    status, and any estimated delivery date. Filtering is done line-by-line and, where a
+    line mixes customer and internal content, sentence-by-sentence, so a single internal
+    clause never deletes a whole paragraph of legitimate content.
 
     Args:
         text: The customer-facing response after scaffolding has been cleaned.
 
     Returns:
-        The response with internal financial details removed.
+        The response with internal financial and inventory-operations content removed.
     """
     if not text:
         return text
 
     def _is_internal(fragment: str) -> bool:
         low = fragment.lower()
-        return any(term in low for term in _INTERNAL_FINANCE_TERMS)
+        return any(term in low for term in _INTERNAL_TERMS)
 
     kept_lines = []
     for line in text.split("\n"):
         if not _is_internal(line):
             kept_lines.append(line)
             continue
-        # The line mentions internal finances: keep only its customer-relevant sentences.
+        # A bullet/list line that is internal is dropped whole; otherwise keep only the
+        # customer-relevant sentences on the line.
+        stripped = line.lstrip()
+        if stripped[:2] in ("- ", "* ") or stripped[:1] in ("-", "*", "\u2022") or re.match(r"\d+\.\s", stripped):
+            kept_lines.append("")
+            continue
         sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", line.strip())
         kept_lines.append(" ".join(s for s in sentences if not _is_internal(s)).strip())
 
@@ -1299,6 +1345,122 @@ def customer_safety_filter(text: str) -> str:
     cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)   # trailing spaces on emptied lines
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)    # collapse gaps left by removed content
     return cleaned.strip()
+
+
+# Fixed, customer-safe phrasing for each unavailability reason. Because the customer reply
+# is rendered from this whitelist rather than from free-form model prose, internal wording
+# (stock counts, minimum levels, reorder/restock notes) simply has no path to the customer.
+_REASON_PHRASES = {
+    "out_of_stock": "currently out of stock",
+    "insufficient_stock": "not available in the requested quantity",
+    "not_in_catalog": "not an item we carry",
+}
+
+
+def _format_money(value) -> str | None:
+    """Format a numeric value as a dollar amount, or return None if it is not a number."""
+    try:
+        return f"${float(value):,.2f}"
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_structured_result(text: str):
+    """
+    Extract the orchestrator's structured JSON result (the {'items': [...], ...} object).
+
+    Tolerates a surrounding code fence or stray prose by pulling out the outermost JSON
+    object. Returns the parsed dict if it has an 'items' list, otherwise None so the caller
+    can fall back to text cleaning.
+    """
+    if not text:
+        return None
+    candidate = text.strip()
+    fence = re.search(r"```(?:json)?\s*(.+?)```", candidate, re.DOTALL)
+    if fence:
+        candidate = fence.group(1).strip()
+    start, end = candidate.find("{"), candidate.rfind("}")
+    if start == -1 or end <= start:
+        return None
+    try:
+        data = json.loads(candidate[start:end + 1])
+    except (ValueError, TypeError):
+        return None
+    if isinstance(data, dict) and isinstance(data.get("items"), list):
+        return data
+    return None
+
+
+def _render_customer_message(data: dict) -> str:
+    """
+    Deterministically compose the customer-facing reply from the structured result.
+
+    Only whitelisted, customer-relevant fields are rendered (item, quantity, fulfillment
+    status, unit price, line total, discount, delivery date, order total), so the message
+    is decided here rather than passed through from the back office. Returns an empty string
+    if the structure has no usable items, signalling the caller to fall back.
+    """
+    items = data.get("items")
+    if not isinstance(items, list) or not items:
+        return ""
+
+    lines = ["Thank you for your request. Here is the status of your order:", ""]
+    any_fulfilled = False
+    fulfilled_sum, saw_line_total = 0.0, False
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "item").strip()
+        qty = item.get("quantity")
+        qty_txt = f"{qty} " if qty not in (None, "") else ""
+        status = str(item.get("status") or "").lower()
+
+        if status == "fulfilled":
+            any_fulfilled = True
+            unit_price = _format_money(item.get("unit_price"))
+            line_total = _format_money(item.get("line_total"))
+            try:
+                fulfilled_sum += float(item.get("line_total"))
+                saw_line_total = True
+            except (TypeError, ValueError):
+                pass
+            price_bits = []
+            if unit_price:
+                price_bits.append(f"{unit_price} each")
+            if line_total:
+                price_bits.append(f"total {line_total}")
+            line = f"- {qty_txt}{name}: confirmed"
+            if price_bits:
+                line += " (" + ", ".join(price_bits) + ")"
+            discount = item.get("discount")
+            if discount and str(discount).strip().lower() not in {"none", "null", "n/a"}:
+                line += f" - includes {str(discount).strip()}"
+            delivery = item.get("delivery_date")
+            if delivery:
+                line += f"; estimated delivery {delivery}"
+            lines.append(line + ".")
+        else:
+            reason = _REASON_PHRASES.get(
+                str(item.get("reason") or "").lower(), "currently unavailable"
+            )
+            line = f"- {qty_txt}{name}: {reason}"
+            delivery = item.get("delivery_date")
+            if delivery:
+                line += f"; earliest estimated delivery {delivery}"
+            lines.append(line + ".")
+
+    raw_total = data.get("order_total")
+    if raw_total in (None, "") and saw_line_total:
+        raw_total = fulfilled_sum
+    order_total = _format_money(raw_total)
+    if any_fulfilled and order_total:
+        lines.append("")
+        lines.append(f"Order total: {order_total}.")
+
+    lines.append("")
+    lines.append("Please let us know if you would like to proceed or adjust your order.")
+    return "\n".join(lines).strip()
 
 
 def call_your_multi_agent_system(request: str) -> str:
@@ -1341,13 +1503,27 @@ def call_your_multi_agent_system(request: str) -> str:
 
     try:
         result = orchestrator_agent.run(task)
-        cleaned = _clean_customer_response(str(result))
-        cleaned = customer_safety_filter(cleaned)
+        raw = str(result)
+
+        # Primary path: decide what the customer is told by rendering only whitelisted
+        # fields from the orchestrator's structured result.
+        data = _parse_structured_result(raw)
+        customer_message = _render_customer_message(data) if data is not None else ""
+
+        if not customer_message:
+            # Fallback: the model did not return usable structured output, so clean and
+            # filter its free-form text instead.
+            customer_message = customer_safety_filter(_clean_customer_response(raw))
+        else:
+            # Defense in depth: the rendered message uses only whitelisted fields, but pass
+            # it through the safety filter too in case a free-text field carried anything.
+            customer_message = customer_safety_filter(customer_message)
+
         if _orchestrator_observer is not None:
-            _orchestrator_observer.log_done(cleaned)
+            _orchestrator_observer.log_done(customer_message)
         if _customer_observer is not None:
-            _customer_observer.log_done(cleaned)
-        return cleaned
+            _customer_observer.log_done(customer_message)
+        return customer_message
     finally:
         CURRENT_REQUEST_DATE = None
 

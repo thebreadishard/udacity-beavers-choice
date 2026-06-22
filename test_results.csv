@@ -1,230 +1,150 @@
 request_id,request_date,cash_balance,inventory_value,response
-1,2025-04-01,45169.7,4830.3,"The order for 100 sheets of heavy cardstock (white) has been confirmed at a total cost of $15.00, and the order for 200 sheets of A4 glossy paper has been confirmed at a total cost of $40.00. Both transactions were finalized on April 1, 2025, and the items are scheduled for delivery on April 15, 2025. This means that all logistical arrangements are in place, and the customer can expect their order on the specified date.
+1,2025-04-01,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
 
-These confirmations indicate that we have sufficient stock to fulfill these orders. It’s essential to ensure that the items are prepped for delivery ahead of time to meet customer expectations. Please keep track of the stock levels to maintain service quality for future orders."
-2,2025-04-03,45169.7,4830.3,"The attempt to finalize the order for 500 sheets of colorful poster paper and 300 rolls of streamers as of April 3, 2025, was unsuccessful. Both items were reported as being out of stock, with no units available for sale. However, I have checked the estimated delivery dates for a restock order. If orders are placed, the expected delivery date for both items would be April 7, 2025.
-This means that customers can either choose to wait for the restock or place smaller orders if any quantity becomes available in the future.
+- 200 A4 glossy paper: confirmed ($0.20 each, total $40.00); estimated delivery 2025-04-15.
+- 100 heavy cardstock (white): confirmed ($0.15 each, total $15.00); estimated delivery 2025-04-15.
+- 100 colored paper (assorted colors): confirmed ($0.10 each, total $10.00); estimated delivery 2025-04-15.
 
-Since both items are needed for likely upcoming events, I recommend planning for the upcoming restock date of April 7, 2025. Customers might be informed of this date so they can prepare accordingly."
-3,2025-04-04,45169.7,4830.3,"Thank you for your order request dated April 4, 2025.
+Order total: $65.00.
 
-Summary of Order:
-- **A4 Paper:** 10,000 sheets requested
-- **A3 Paper:** 5,000 sheets requested (not available)
-- **Printer Paper:** 500 reams requested (not available)
+Please let us know if you would like to proceed or adjust your order."
+2,2025-04-03,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
 
-Inventory Status:
-- **A4 Paper:** We have sufficient stock with 272 sheets available. The price quote for 10,000 sheets of A4 paper is **$500.00**. However, no bulk discount applies as the order does not meet the discount threshold.
-- **A3 Paper:** Currently unlisted in our inventory, so we cannot fulfill this request.
-- **Printer Paper:** Also unlisted in our inventory, so we cannot fulfill this request.
+- 500 colorful poster paper: not available in the requested quantity.
+- 300 streamers: not available in the requested quantity.
 
-Conclusion:
-We can fulfill part of your order for A4 paper with a total cost of **$500.00**, but we are unable to provide the requested A3 paper and printer paper as they are not available in our catalog. If you'd like, we can assist you in finding alternative products for the items that are out of stock or consider updating the catalog to include those items in the future. Please let us know how you would like to proceed."
-4,2025-04-05,45241.45,4758.55,"Unfortunately, we cannot fulfill the order for 500 sheets of high-quality recycled cardstock as there are currently no units in stock. Therefore, this portion of the order cannot be finalized at this time. On the other hand, the order for 250 sheets of A4 size printer paper has been confirmed and is expected to be delivered by April 9, 2025. Totaling the entire order, including the paper, the total cost is $87.50 with no discounts applied. Therefore, the complete order is partially filled with the printer paper while the cardstock remains unfulfilled. It may be beneficial to check the inventory for cardstock and possibly consider placing a subsequent order once items are restocked.
+Please let us know if you would like to proceed or adjust your order."
+3,2025-04-04,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
 
-Currently, only 22 units of A4 paper are on hand, so the confirmed order for 250 sheets is valid and an order of 500 units for cardstock cannot be fulfilled at this time due to the stock being empty. We should monitor the inventory status regularly to ensure timely fulfillment of orders once they are restocked."
-5,2025-04-05,45251.45,4708.55,"The attempt to finalize the order for 300 sheets of cardstock has revealed that there are currently 0 units available in stock as of April 5, 2025. Therefore, the order could not be processed. However, it has been determined that if an order for 300 units is placed, the expected delivery from the supplier would be April 9, 2025. This indicates that stock will be replenished shortly, allowing us to fulfill customer requests after that date.
+- 10000 A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-15.
+- 5000 A3 paper: not an item we carry; earliest estimated delivery 2025-04-15.
+- 500 printer paper: not an item we carry; earliest estimated delivery 2025-04-15.
 
-This suggests a need to address stock levels proactively to meet customer demand and improve sales performance."
-6,2025-04-06,45251.45,4708.55,"The order for 500 sheets of colorful construction paper cannot be fulfilled as there are only 0 units in stock as of April 6, 2025. Similarly, the request for 200 sheets of cardstock is also unable to be fulfilled due to insufficient stock, with 0 units available. However, both items can be reordered, and if a new order for 200 sheets of cardstock or 500 sheets of colorful construction paper is placed on April 6, 2025, the estimated delivery date for both items would be April 10, 2025. Therefore, while the items cannot be delivered as requested, they could potentially be available if an order is made.
+Please let us know if you would like to proceed or adjust your order."
+4,2025-04-05,45261.45,4738.55,"Thank you for your request. Here is the status of your order:
 
-It was noted that white printer paper is unavailable but was not part of the order. Ordering the colorful construction paper and cardstock will require waiting until after April 6 or placing an order to assure that the items will restock."
-7,2025-04-07,45191.45,4768.55,"As of April 7, 2025, there are no units of matte A3 paper in stock. This means we have reached or fallen below the minimum stock level, which is also 0 units. The unit price for this paper is $0.18, and since the current stock is below the minimum level, it is recommended that we place a replenishment order to maintain inventory and meet potential customer demands. This situation highlights the importance of timely restocking to prevent any supply disruptions.
+- 395 high-quality recycled cardstock: confirmed ($0.15 each, total $59.25); estimated delivery 2025-04-15.
+- 250 A4 printer paper: confirmed ($0.05 each, total $12.50); estimated delivery 2025-04-15.
 
-As we have no matte A3 paper available, we should evaluate the amount needed for the restock order carefully, ideally covering usual sales periods, to ensure we do not run into stock issues in the future. It may also be useful to review the consumption rate of this item to set a more accurate minimum stock level moving forward."
-8,2025-04-07,43931.45,4768.55,"Thank you for your order request dated April 7, 2025. I have processed your order for the paper supplies needed for your upcoming ceremony. Here's the summary of our findings:
+Order total: $71.75.
 
-Unfortunately, we cannot fulfill the entire order as requested due to insufficient stock for some items:
+Please let us know if you would like to proceed or adjust your order."
+5,2025-04-05,45311.45,4688.55,"Thank you for your request. Here is the status of your order:
 
-1. **A4 Glossy Paper:**
-   - Stock Available: 187 sheets
-   - Requested: 500 sheets
-   - Status: Not enough stock to fulfill the request; no replenishment needed at this time as it exceeds the minimum stock level.
+- 500 8.5""x11"" colored paper: confirmed ($0.10 each, total $50.00).
+- 300 cardstock in various colors: currently out of stock.
+- 200 decorative washi tape: confirmed ($0.20 each, total $40.00).
 
-2. **A4 Matte Paper:**
-   - Stock Available: 3000 sheets
-   - Requested: 1000 sheets
-   - Status: Fully available. Price: $0.18 per sheet.
+Order total: $90.00.
 
-3. **A5 Colored Paper:**
-   - Stock Available: 288 sheets
-   - Requested: 2000 sheets
-   - Status: Not enough stock to fulfill the request; no replenishment needed at this time as it exceeds the minimum stock level.
+Please let us know if you would like to proceed or adjust your order."
+6,2025-04-06,45251.45,4748.55,{
+7,2025-04-07,45281.45,4718.55,"Thank you for your request. Here is the status of your order:
 
-4. **A4 Recycled Paper:**
-   - Stock Available: 9000 sheets
-   - Requested: 3000 sheets
-   - Status: Fully available. Price: $0.08 per sheet.
+- 200 heavyweight cardstock: confirmed ($0.15 each, total $30.00).
+- 300 large poster papers: currently out of stock; earliest estimated delivery 2025-04-11.
+- 1000 matte A3 paper: currently out of stock; earliest estimated delivery 2025-04-11.
+- 500 glossy A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-11.
 
-Quoted Pricing:
-- **A4 Matte Paper (1000 sheets):** $180.00
-- **A4 Recycled Paper (3000 sheets):** $240.00
+Order total: $30.00.
 
-Total Quote: $420.00
-- No bulk discounts applicable as neither item met the thresholds.
+Please let us know if you would like to proceed or adjust your order."
+8,2025-04-07,45273.45,4718.55,"The unit price for A4 matte paper is $0.18.
 
-Since we cannot fulfill your complete order due to stock shortages in A4 glossy and A5 colored papers, we recommend considering an adjustment in your order or waiting for restock on those items.
-The estimated restock date for A4 glossy and A5 colored papers is currently unconfirmed. Please let us know how you would like to proceed!"
-9,2025-04-07,43931.45,4768.55,"- **100% recycled kraft paper envelopes:**
-  - Current stock: 493 units
-  - Minimum stock level: 64 units
-  - Status: Above minimum - no reorder needed.
-  - This item is well-stocked, allowing us to fulfill the request for 50 packets without issue.
+Although we have various other paper types in stock, including 22 units of A4 paper, it is not specified as matte. Hence, it does not meet the specific requirement for A4 matte paper."
+9,2025-04-07,45298.45,4693.55,"Thank you for your request. Here is the status of your order:
 
-- **A3 glossy paper:**
-  - Current stock: 187 units
-  - Minimum stock level: 147 units
-  - Status: Above minimum - no reorder needed.
-  - Sufficient quantity available to fulfill the order for 100 sheets
+- 100 A3 glossy paper: confirmed ($0.20 each, total $20.00); estimated delivery 2025-04-10.
+- 50 100% recycled kraft paper envelopes: confirmed ($0.10 each, total $5.00); estimated delivery 2025-04-10.
 
-- **A4 white printer paper:**
-  - Current stock: 22 units
-  - Minimum stock level: 135 units
-  - Status: AT OR BELOW minimum - reorder recommended.
-  - We currently lack enough stock to fulfill the order for 200 sheets. A reorder is necessary to cover this shortfall.
+Order total: $25.00.
 
-It is recommended to assess the needs for A4 white printer paper and place a restock order as soon as possible to avoid disruption in fulfilling customer orders. The current market price for A4 paper is $0.05 per sheet, which should guide the restocking decision.
+Please let us know if you would like to proceed or adjust your order."
+13,2025-04-08,45298.45,4693.55,"Thank you for your request. Here is the status of your order:
 
-Price Quote:
-The total price quote for the order is $35.00.
+- 500 A4 printing paper: not available in the requested quantity.
+- 200 cardstock: confirmed ($0.15 each, total $30.00); estimated delivery 2025-04-10.
 
-- **A4 White Printer Paper:** 200 sheets
-  - Unit Price: $0.05
-  - Subtotal: $10.00
-  - Bulk Discount: None (order does not meet discount threshold)
+Order total: $30.00.
 
-- **A3 Glossy Paper:** 100 sheets
-  - Unit Price: $0.20
-  - Subtotal: $20.00
-  - Bulk Discount: None (order does not meet discount threshold)
+Please let us know if you would like to proceed or adjust your order."
+12,2025-04-08,45306.45,4663.55,"Thank you for your request. Here is the status of your order:
 
-- **100% Recycled Kraft Paper Envelopes:** 50 packets
-  - Unit Price: $0.10
-  - Subtotal: $5.00
-  - Bulk Discount: None (order does not meet discount threshold)
+- 200 Colorful Cardstock: confirmed ($0.15 each, total $30.00); estimated delivery 2025-04-15.
+- 100 Paper Napkins: confirmed ($0.02 each, total $2.00); estimated delivery 2025-04-15.
 
-**Grand Total for the entire order:** $10.00 (A4) + $20.00 (A3) + $5.00 (Kraft Envelopes) = **$35.00**
+Order total: $32.00.
 
-Currently, we cannot fulfill your entire order as we are out of stock on A4 white printer paper. Please let us know how you would like to proceed!"
-13,2025-04-08,43962.55,4737.45,"- **A4 Printing Paper:**
-    - Required: 500 sheets
-    - Available: 22 sheets
-    - Reorder required: 478 sheets
-    - Unit Price: $0.05
-    - Quote for 500 sheets:
-        - Subtotal: $25.00
-        - Bulk discount: none (order does not meet discount threshold)
-        - Total for 500 sheets: $25.00
-    - Additional Quote for 478 sheets:
-        - Subtotal: $23.90
-        - Bulk discount: none (order does not meet discount threshold)
-        - Total for 478 sheets: $23.90
+Please let us know if you would like to proceed or adjust your order."
+10,2025-04-08,45206.45,4763.55,"Thank you for your request. Here is the status of your order:
 
-- **Cardstock:**
-    - Required: 200 sheets
-    - Available: 400 sheets
-    - Unit Price: $0.15
-    - Quote for 200 sheets:
-        - Subtotal: $30.00
-        - Bulk discount: none (order does not meet discount threshold)
-        - Total for 200 sheets: $30.00
+- 500 high-quality glossy paper: not available in the requested quantity; earliest estimated delivery 2025-04-12.
+- 300 sturdy cardstock: not an item we carry.
 
-- **Total Quote Summary:**
-    - Total for A4 Printing Paper (500 sheets + reorder of 478 sheets): $25.00 + $23.90 = $48.90
-    - Total for Cardstock (200 sheets): $30.00
-    - **Final Total:** $48.90 + $30.00 = $78.90
+Please let us know if you would like to proceed or adjust your order."
+11,2025-04-08,45206.45,4763.55,"Thank you for your request. Here is the status of your order:
 
-The A4 printing paper stock was insufficient, warranting a reorder. The customer will need to consider the total quote of $78.90 for budgeting. No bulk discounts were applied for either item as the orders did not meet the qualifying threshold."
-12,2025-04-08,43954.55,4707.45,"The order has been finalized with the following confirmations:
-- 200 sheets of colorful cardstock sold at a subtotal of $30.00.
-- 500 sheets of standard printer paper sold at a subtotal of $20.00.
-- 100 paper napkins sold at a subtotal of $2.00.
-The total amount charged matches the order total of $52.00.
-The order of 800 units placed on this date is expected to be delivered by April 12, 2025.
+- 500 A3 glossy paper: confirmed ($0.20 each, total $100.00).
+- 300 A4 matte paper: confirmed ($0.18 each, total $54.00); estimated delivery 2025-04-12.
 
-All items were available in stock at the time of sale, and the delivery date aligns with the customer's expectation. There are no issues regarding financial constraints or inventory shortages."
-10,2025-04-08,43909.55,4752.45,"The attempt to finalize the order for 500 sheets of high-quality glossy paper was unsuccessful because only 187 units were available in stock as of April 8, 2025. Consequently, customers can only order the available quantity unless they are willing to wait for a restock. In contrast, the order for 300 sheets of sturdy cardstock can be placed, and it is estimated to be delivered by April 12, 2025.
+Order total: $154.00.
 
-Given the current stock levels and demand for glossy paper, it may be prudent to consider placing a restock order for the glossy paper to meet future demand. Additionally, the cardstock is already in the process of being restocked, with delivery expected soon."
-11,2025-04-08,44017.55,4752.45,"The order placed included 500 sheets of A3 glossy paper and 300 sheets of A4 matte paper. However, the inventory check revealed only 187 sheets of A3 glossy paper are available. Consequently, the order for A3 glossy paper cannot be fulfilled in full, and we will require a restock to complete that part of the order. For the A4 matte paper, the full amount of 300 sheets was successfully sold, and the order was confirmed. The total charged for this order was $54.00. Additionally, an order consisting of 313 units of the A3 glossy paper will take approximately 4 days for delivery, expected to arrive by April 12, 2025.
+Please let us know if you would like to proceed or adjust your order."
+14,2025-04-09,43881.45,5088.55,"Thank you for your request. Here is the status of your order:
 
-It is essential to consider placing a restock order for the A3 glossy paper to ensure future fulfilling capability, as customer demand may continue. In the meantime, communication with the customer regarding the A3 glossy paper shortage is advisable, along with informing them of the estimated restock arrival."
-14,2025-04-09,44017.55,4752.45,"The quotes for each type of paper are detailed below:
-- **A4 Paper**: 5,000 sheets at a unit price of $0.05
-  - Subtotal: $250.00
-  - Bulk discount: none (order does not meet discount threshold)
-  - Total: $250.00
+- 5000 A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-16.
+- 2000 poster paper: currently unavailable; earliest estimated delivery 2025-04-16.
+- 500 cardstock: not available in the requested quantity.
 
-- **Poster Paper**: 2,000 sheets at a unit price of $0.25
-  - Subtotal: $500.00
-  - Bulk discount: none (order does not meet discount threshold)
-  - Total: $500.00
+Please let us know if you would like to proceed or adjust your order."
+15,2025-04-12,43881.45,5088.55,"Thank you for your request. Here is the status of your order:
 
-- **Cardstock**: 500 sheets at a unit price of $0.15
-  - Subtotal: $75.00
-  - Bulk discount: none (order does not meet discount threshold)
-  - Total: $75.00
+- 10000 A4 white paper: confirmed ($0.05 each, total $500.00).
+- 5000 A3 colored paper: confirmed ($0.10 each, total $500.00).
+- 500 cardboard for signage: not an item we carry.
 
-The overall total for all items is calculated as follows:
-- Total for A4 Paper: $250.00
-- Total for Poster Paper: $500.00
-- Total for Cardstock: $75.00
+Order total: $1,000.00.
 
-Therefore, Total Cost = $250 + $500 + $75 = $825.00.
+Please let us know if you would like to proceed or adjust your order."
+16,2025-04-13,43931.45,5063.55,"Thank you for your request. Here is the status of your order:
 
-No bulk discounts apply as the quantities for each item do not meet the thresholds typically required for bulk pricing. This quote is reflective of the prices as of April 9, 2025."
-15,2025-04-12,44010.8,4759.2,"On checking the stock as of 2025-04-12, there were only 135 sheets of A4 white paper and 288 sheets of A3 colored paper available. This significantly falls short of the requested quantities of 10,000 and 5,000 sheets, respectively. Therefore, the orders could not be processed as initially planned.
-To fulfill the requirements, an order placed on 2025-04-12 for both items would be delivered by 2025-04-19, assuming that backorder amounts are allowed. Customers need to consider either ordering the available quantities currently in stock or allowing time for a restock.
+- 500 A4 printer paper: confirmed ($0.05 each, total $25.00).
+- 200 colorful construction paper: not available in the requested quantity; earliest estimated delivery 2025-04-17.
+- 100 poster paper: confirmed ($0.25 each, total $25.00).
 
-The situation highlights a need for better inventory management, especially in anticipation of larger orders, to avoid stock shortages and potential delays in fulfilling customer needs."
-16,2025-04-13,44017.55,4752.45,"The order for A4 printer paper was confirmed with 500 units sold at a subtotal of $25.00, and 200 units of colorful construction paper were sold at a subtotal of $14.00, totaling $39.00 as initially quoted. Both items were ordered on April 13, 2025, and although the order is complete, the delivery date for these items is estimated as April 17, 2025, which is slightly later than the required delivery date of April 15, 2025. Therefore, while the order is processed successfully, the requested delivery date cannot be met.
+Order total: $50.00.
 
-It is worth noting that the order originally included 100 sheets of poster board, which was deemed unavailable, and was therefore omitted from the final transaction. The sales team may need to follow up regarding this item if it is still of interest to the customer."
-17,2025-04-14,44046.35,4723.65,"- **Restock Order for A3 Colored Paper:**
-  A restock order for 212 sheets of A3 colored paper has been successfully placed. The total cost of this order is $21.20. The order date is recorded as April 14, 2025, and the estimated delivery date is April 18, 2025.
-  - Current stock level of A3 colored paper was checked and found to be 288 units, which is above the minimum stock level of 143 units, indicating that the stock is healthy, and no further orders are necessary at this moment.
+Please let us know if you would like to proceed or adjust your order."
+17,2025-04-14,44121.45,4873.55,"Thank you for your request. Here is the status of your order:
 
-- **Investigation of Availability for White Table Napkins:**
-  An attempt was made to check the availability of white table napkins; however, they were not found in the catalog, meaning we do not have this item in stock nor can we order it at this time.
+- 1000 A4 white printer paper: confirmed ($0.05 each, total $50.00).
+- 500 A3 colored paper: not available in the requested quantity; earliest estimated delivery 2025-04-18.
+- 1000 biodegradable paper cups: not available in the requested quantity; earliest estimated delivery 2025-04-18.
+- 500 biodegradable paper plates: not available in the requested quantity; earliest estimated delivery 2025-04-18.
 
-Since the white table napkins are not in our catalog, it may be helpful to explore alternative options or suppliers to fulfill any upcoming demand for them. Further discussions may be needed to determine if we should look into adding this item to our inventory."
-18,2025-04-14,44066.35,4703.65,"The order for 200 sheets of colored paper was confirmed on April 14, 2025. The total amount charged to the customer is $20.00, matching the quoted price. The order is set to be delivered by April 18, 2025. There was no issue with stock availability for this item, and the sale has been processed successfully.
+Order total: $50.00.
 
-This order is part of our ongoing effort to maintain customer satisfaction by ensuring orders are processed efficiently. If any further assistance or adjustments are needed for future orders, please let me know."
-19,2025-04-15,44336.35,4703.65,"Dear [Manufacturer's Name],
+Please let us know if you would like to proceed or adjust your order."
+18,2025-04-14,44121.45,4873.55,"Thank you for your request. Here is the status of your order:
 
-Thank you for your order request dated 2025-04-15.
+- 500 high-quality white cardstock: confirmed ($0.15 each, total $75.00).
+- 200 colored paper: not available in the requested quantity; earliest estimated delivery 2025-04-18.
 
-Order Summary:
-- **Requested Items:**
-  - 2000 sheets of A4 glossy paper
-  - 1500 sheets of A3 matte paper
-  - 1000 sheets of cardstock in assorted colors
+Order total: $75.00.
 
-Availability:
-- Unfortunately, we cannot fulfill the order for:
-  - **A4 Glossy Paper:** We currently have only 187 sheets available, which is below your requested quantity.
-  - **Cardstock:** We have 300 sheets available, which is insufficient for your request of 1000 sheets.
-- However, we can fulfill your request for **A3 Matte Paper,** as we have 2400 sheets in stock, and this order has been confirmed and sold for a total of **$270.00.**
+Please let us know if you would like to proceed or adjust your order."
+19,2025-04-15,44238.85,4756.15,"Thank you for your request. Here is the status of your order:
 
-Pricing:
-- The total quote for all requested papers was **$820.00,** but due to stock limitations, this only applies to the processed sale of the A3 matte paper.
-- **Description of Pricing:**
-  - A4 Glossy Paper (2000 sheets): $400.00 (not available)
-  - A3 Matte Paper (1500 sheets): $270.00 (available and sold)
-  - Cardstock (1000 sheets): $150.00 (not available)
-- **Grand Total:** $820.00 (only applicable for sold A3 Matte Paper)
+- 2000 A4 glossy paper: not available in the requested quantity; earliest estimated delivery 2025-04-22.
+- 1500 A3 matte paper: not available in the requested quantity; earliest estimated delivery 2025-04-22.
 
-Next Steps:
-You may consider placing an order for the available quantities of A4 glossy paper (187 sheets) or cardstock (300 sheets). Alternatively, you can allow time for restocking, with expected delivery dates for these items being:
-- **Glossy Paper:** If ordered separately, will be delivered by April 22, 2025.
-- **Cardstock:** If ordered separately, will be delivered by April 19, 2025.
+Please let us know if you would like to proceed or adjust your order."
+20,2025-04-17,44163.85,4756.15,"Thank you for your request. Here is the status of your order:
 
-Thank you for your understanding, and we look forward to assisting you further!"
-20,2025-04-17,44336.35,4703.65,"- **Flyers:** Current stock is 0 units as of April 17, 2025, which is at or below the minimum stock level. A reorder is recommended with a unit price of $0.15.
-- **Posters:** The item was not found in the catalog, indicating that it may not be available for stock or ordering.
-- **Tickets:** The item was also not found in the catalog, suggesting it is likely unavailable for stock or ordering.
+- 5000 flyers: confirmed ($0.15 each, total $712.50) - includes 5% bulk discount; estimated delivery 2025-04-24.
+- 2000 posters: not an item we carry.
+- 10000 tickets: not an item we carry.
 
-Overall, none of the requested items are confirmed available for the order date. Immediate restocking actions should be considered for flyers if they are to be used in upcoming events or promotions, and alternative sources may need to be explored for posters and tickets as they are not listed in the inventory catalog.
+Order total: $712.50.
 
-Only flyers were mentioned as being available for restocking, while posters and tickets were not found in the inventory system. This suggests a potential gap in offerings that may need to be addressed to fulfill order requests in the future."
+Please let us know if you would like to proceed or adjust your order."
