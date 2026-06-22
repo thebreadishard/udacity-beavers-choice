@@ -91,6 +91,11 @@ absent). The extras are kept in their own files so the graded path stays untouch
 | `customer_negotiation_demo.py` | An LLM-driven **customer agent** that negotiates (up to 3 rounds) with the real company team. |
 | `workflow_diagram.mmd` / `workflow_diagram.png` | A Mermaid architecture diagram of the agents and their tools. |
 
+![Beaver's Choice pixel office: the orchestrator, inventory, quoting, and sales agents at their desks, a customer in the lobby, and a live activity feed](docs/pixel_office.png)
+
+*The pixel-art office: each desk is one agent (orchestrator, inventory, quoting, sales), the
+customer waits in the lobby, and the activity feed on the right tails the run in real time.*
+
 ### How to see the pixel-art animation
 
 The viewer animates a `transcript.jsonl` file. That file is **gitignored**, so a fresh
