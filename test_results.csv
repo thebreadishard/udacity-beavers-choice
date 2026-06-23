@@ -1,150 +1,147 @@
 request_id,request_date,cash_balance,inventory_value,response
-1,2025-04-01,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
+1,2025-04-01,45084.7,4915.299999999999,"Thank you for your request. Here is the status of your order:
 
-- 200 A4 glossy paper: confirmed ($0.20 each, total $40.00); estimated delivery 2025-04-15.
+- 200 A4 glossy paper: currently out of stock.
 - 100 heavy cardstock (white): confirmed ($0.15 each, total $15.00); estimated delivery 2025-04-15.
 - 100 colored paper (assorted colors): confirmed ($0.10 each, total $10.00); estimated delivery 2025-04-15.
-
-Order total: $65.00.
-
-Please let us know if you would like to proceed or adjust your order."
-2,2025-04-03,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
-
-- 500 colorful poster paper: not available in the requested quantity.
-- 300 streamers: not available in the requested quantity.
-
-Please let us know if you would like to proceed or adjust your order."
-3,2025-04-04,45189.7,4810.3,"Thank you for your request. Here is the status of your order:
-
-- 10000 A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-15.
-- 5000 A3 paper: not an item we carry; earliest estimated delivery 2025-04-15.
-- 500 printer paper: not an item we carry; earliest estimated delivery 2025-04-15.
-
-Please let us know if you would like to proceed or adjust your order."
-4,2025-04-05,45261.45,4738.55,"Thank you for your request. Here is the status of your order:
-
-- 395 high-quality recycled cardstock: confirmed ($0.15 each, total $59.25); estimated delivery 2025-04-15.
-- 250 A4 printer paper: confirmed ($0.05 each, total $12.50); estimated delivery 2025-04-15.
-
-Order total: $71.75.
-
-Please let us know if you would like to proceed or adjust your order."
-5,2025-04-05,45311.45,4688.55,"Thank you for your request. Here is the status of your order:
-
-- 500 8.5""x11"" colored paper: confirmed ($0.10 each, total $50.00).
-- 300 cardstock in various colors: currently out of stock.
-- 200 decorative washi tape: confirmed ($0.20 each, total $40.00).
-
-Order total: $90.00.
-
-Please let us know if you would like to proceed or adjust your order."
-6,2025-04-06,45251.45,4748.55,{
-7,2025-04-07,45281.45,4718.55,"Thank you for your request. Here is the status of your order:
-
-- 200 heavyweight cardstock: confirmed ($0.15 each, total $30.00).
-- 300 large poster papers: currently out of stock; earliest estimated delivery 2025-04-11.
-- 1000 matte A3 paper: currently out of stock; earliest estimated delivery 2025-04-11.
-- 500 glossy A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-11.
-
-Order total: $30.00.
-
-Please let us know if you would like to proceed or adjust your order."
-8,2025-04-07,45273.45,4718.55,"The unit price for A4 matte paper is $0.18.
-
-Although we have various other paper types in stock, including 22 units of A4 paper, it is not specified as matte. Hence, it does not meet the specific requirement for A4 matte paper."
-9,2025-04-07,45298.45,4693.55,"Thank you for your request. Here is the status of your order:
-
-- 100 A3 glossy paper: confirmed ($0.20 each, total $20.00); estimated delivery 2025-04-10.
-- 50 100% recycled kraft paper envelopes: confirmed ($0.10 each, total $5.00); estimated delivery 2025-04-10.
 
 Order total: $25.00.
 
 Please let us know if you would like to proceed or adjust your order."
-13,2025-04-08,45298.45,4693.55,"Thank you for your request. Here is the status of your order:
+2,2025-04-03,44664.7,4915.299999999999,"Thank you for your request. Here is the status of your order:
 
-- 500 A4 printing paper: not available in the requested quantity.
-- 200 cardstock: confirmed ($0.15 each, total $30.00); estimated delivery 2025-04-10.
-
-Order total: $30.00.
-
-Please let us know if you would like to proceed or adjust your order."
-12,2025-04-08,45306.45,4663.55,"Thank you for your request. Here is the status of your order:
-
-- 200 Colorful Cardstock: confirmed ($0.15 each, total $30.00); estimated delivery 2025-04-15.
-- 100 Paper Napkins: confirmed ($0.02 each, total $2.00); estimated delivery 2025-04-15.
-
-Order total: $32.00.
+- 500 colorful poster paper: currently out of stock; earliest estimated delivery 2025-04-07.
+- 300 streamers: currently out of stock; earliest estimated delivery 2025-04-07.
+- 200 balloons: not an item we carry.
 
 Please let us know if you would like to proceed or adjust your order."
-10,2025-04-08,45206.45,4763.55,"Thank you for your request. Here is the status of your order:
+3,2025-04-04,44678.3,4901.699999999999,"Thank you for your request. Here is the status of your order:
 
-- 500 high-quality glossy paper: not available in the requested quantity; earliest estimated delivery 2025-04-12.
-- 300 sturdy cardstock: not an item we carry.
+- 10000 A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-15.
+- 272 A4 paper: confirmed ($0.05 each, total $13.60).
+
+Order total: $13.60.
 
 Please let us know if you would like to proceed or adjust your order."
-11,2025-04-08,45206.45,4763.55,"Thank you for your request. Here is the status of your order:
+4,2025-04-05,44752.55,4827.45,"Thank you for your request. Here is the status of your order:
 
-- 500 A3 glossy paper: confirmed ($0.20 each, total $100.00).
-- 300 A4 matte paper: confirmed ($0.18 each, total $54.00); estimated delivery 2025-04-12.
+- 250 A4 size printer paper: confirmed ($0.05 each, total $12.50); estimated delivery 2025-04-05.
+- 500 high-quality recycled cardstock: not available in the requested quantity; earliest estimated delivery 2025-04-05.
+
+Order total: $12.50.
+
+Please let us know if you would like to proceed or adjust your order."
+5,2025-04-05,44802.55,4777.45,"Thank you for your request. Here is the status of your order:
+
+- 500 8.5""x11"" colored paper: confirmed ($0.10 each, total $50.00).
+- 300 cardstock: not available in the requested quantity; earliest estimated delivery 2025-04-09.
+- 200 decorative washi tape: not available in the requested quantity; earliest estimated delivery 2025-04-09.
+
+Order total: $50.00.
+
+Please let us know if you would like to proceed or adjust your order."
+6,2025-04-06,44802.55,4777.45,"Thank you for your request. Here is the status of your order:
+
+- 500 colorful construction paper: currently out of stock.
+- 200 cardstock: currently out of stock.
+- 300 white printer paper: not an item we carry.
+
+Please let us know if you would like to proceed or adjust your order."
+7,2025-04-07,44802.55,4777.45,"Thank you for your request. We were not able to safely complete this order from the available information. Please confirm the exact catalog item names and quantities, and we will prepare an updated quote."
+8,2025-04-07,44902.55,4677.45,"Thank you for your request. We were not able to safely complete this order from the available information. Please confirm the exact catalog item names and quantities, and we will prepare an updated quote."
+9,2025-04-07,44919.95,4660.049999999999,"Thank you for your request. Here is the status of your order:
+
+- 200 A4 white printer paper: currently out of stock.
+- 100 A3 glossy paper: not available in the requested quantity.
+- 50 100% recycled kraft paper envelopes: not an item we carry.
+
+Please let us know if you would like to proceed or adjust your order."
+13,2025-04-08,44919.95,4660.049999999999,"Thank you for your request. Here is the status of your order:
+
+- 500 A4 printing paper: currently out of stock.
+- 200 cardstock: currently out of stock.
+
+Please let us know if you would like to proceed or adjust your order."
+12,2025-04-08,44919.95,4660.049999999999,"Thank you for your request. Here is the status of your order:
+
+- 200 colorful cardstock: currently out of stock; earliest estimated delivery 2025-04-12.
+- 500 standard printer paper: confirmed ($0.04 each, total $20.00).
+- 100 paper napkins: confirmed ($0.02 each, total $2.00).
+
+Order total: $22.00.
+
+Please let us know if you would like to proceed or adjust your order."
+10,2025-04-08,44919.95,4660.049999999999,"Thank you for your request. Here is the status of your order:
+
+- 500 high-quality glossy paper: confirmed ($0.20 each, total $100.00); estimated delivery 2025-04-12.
+- 300 sturdy cardstock: confirmed ($0.15 each, total $45.00); estimated delivery 2025-04-12.
+
+Order total: $145.00.
+
+Please let us know if you would like to proceed or adjust your order."
+11,2025-04-08,44457.95,4960.05,"Thank you for your request. Here is the status of your order:
+
+- 500 A3 glossy paper: confirmed ($0.20 each, total $100.00); estimated delivery 2025-04-15.
+- 300 A4 matte paper: confirmed ($0.18 each, total $54.00); estimated delivery 2025-04-15.
 
 Order total: $154.00.
 
 Please let us know if you would like to proceed or adjust your order."
-14,2025-04-09,43881.45,5088.55,"Thank you for your request. Here is the status of your order:
+14,2025-04-09,44457.95,4960.05,"Thank you for your request. Here is the status of your order:
 
-- 5000 A4 paper: not available in the requested quantity; earliest estimated delivery 2025-04-16.
-- 2000 poster paper: currently unavailable; earliest estimated delivery 2025-04-16.
-- 500 cardstock: not available in the requested quantity.
+- 5000 A4 paper: currently out of stock; earliest estimated delivery 2025-04-16.
+- 2000 poster paper: confirmed ($0.25 each, total $500.00).
+- 500 cardstock: currently out of stock; earliest estimated delivery 2025-04-13.
 
-Please let us know if you would like to proceed or adjust your order."
-15,2025-04-12,43881.45,5088.55,"Thank you for your request. Here is the status of your order:
-
-- 10000 A4 white paper: confirmed ($0.05 each, total $500.00).
-- 5000 A3 colored paper: confirmed ($0.10 each, total $500.00).
-- 500 cardboard for signage: not an item we carry.
-
-Order total: $1,000.00.
+Order total: $825.00.
 
 Please let us know if you would like to proceed or adjust your order."
-16,2025-04-13,43931.45,5063.55,"Thank you for your request. Here is the status of your order:
+15,2025-04-12,44457.95,4960.05,"Thank you for your request. Here is the status of your order:
 
-- 500 A4 printer paper: confirmed ($0.05 each, total $25.00).
-- 200 colorful construction paper: not available in the requested quantity; earliest estimated delivery 2025-04-17.
-- 100 poster paper: confirmed ($0.25 each, total $25.00).
+- 5000 A3 colored paper: not available in the requested quantity; earliest estimated delivery 2025-04-19.
+
+Please let us know if you would like to proceed or adjust your order."
+16,2025-04-13,44426.2,4991.8,"Thank you for your request. Here is the status of your order:
+
+- 100 Colorful Construction Paper: confirmed ($0.07 each, total $7.00); estimated delivery 2025-04-14.
+- 500 A4 Printer Paper: not available in the requested quantity; earliest estimated delivery 2025-04-17.
+
+Order total: $7.00.
+
+Please let us know if you would like to proceed or adjust your order."
+17,2025-04-14,44426.2,4991.8,"Thank you for your request. Here is the status of your order:
+
+- 1000 A4 white printer paper: not available in the requested quantity.
+- 500 A3 colored paper (assorted colors): confirmed ($0.10 each, total $50.00).
+- 1000 biodegradable paper cups: currently out of stock.
+- 2000 table napkins: not an item we carry.
+- 500 paper plates: not available in the requested quantity.
 
 Order total: $50.00.
 
 Please let us know if you would like to proceed or adjust your order."
-17,2025-04-14,44121.45,4873.55,"Thank you for your request. Here is the status of your order:
+18,2025-04-14,44403.96,5013.999999999999,"Thank you for your request. Here is the status of your order:
 
-- 1000 A4 white printer paper: confirmed ($0.05 each, total $50.00).
-- 500 A3 colored paper: not available in the requested quantity; earliest estimated delivery 2025-04-18.
-- 1000 biodegradable paper cups: not available in the requested quantity; earliest estimated delivery 2025-04-18.
-- 500 biodegradable paper plates: not available in the requested quantity; earliest estimated delivery 2025-04-18.
+- 500 high-quality white cardstock: currently out of stock; earliest estimated delivery 2025-04-18.
+- 1000 standard printing paper: currently out of stock; earliest estimated delivery 2025-04-14.
+- 200 colored paper in assorted colors: confirmed ($0.10 each, total $20.00).
 
-Order total: $50.00.
-
-Please let us know if you would like to proceed or adjust your order."
-18,2025-04-14,44121.45,4873.55,"Thank you for your request. Here is the status of your order:
-
-- 500 high-quality white cardstock: confirmed ($0.15 each, total $75.00).
-- 200 colored paper: not available in the requested quantity; earliest estimated delivery 2025-04-18.
-
-Order total: $75.00.
+Order total: $20.00.
 
 Please let us know if you would like to proceed or adjust your order."
-19,2025-04-15,44238.85,4756.15,"Thank you for your request. Here is the status of your order:
+19,2025-04-15,44865.96,4713.999999999999,"Thank you for your request. Here is the status of your order:
 
-- 2000 A4 glossy paper: not available in the requested quantity; earliest estimated delivery 2025-04-22.
-- 1500 A3 matte paper: not available in the requested quantity; earliest estimated delivery 2025-04-22.
+- 1500 A4 glossy paper: confirmed ($0.20 each, total $300.00); estimated delivery 2025-04-22.
+- 900 A3 matte paper: confirmed ($0.18 each, total $162.00); estimated delivery 2025-04-22.
+- 148 cardstock: not available in the requested quantity; earliest estimated delivery 2025-04-19.
+
+Order total: $462.00.
 
 Please let us know if you would like to proceed or adjust your order."
-20,2025-04-17,44163.85,4756.15,"Thank you for your request. Here is the status of your order:
+20,2025-04-17,44850.96,4713.999999999999,"Thank you for your request. Here is the status of your order:
 
-- 5000 flyers: confirmed ($0.15 each, total $712.50) - includes 5% bulk discount; estimated delivery 2025-04-24.
-- 2000 posters: not an item we carry.
-- 10000 tickets: not an item we carry.
-
-Order total: $712.50.
+- 100 flyers: not an item we carry; earliest estimated delivery 2025-05-15.
+- 2000 posters: not an item we carry; earliest estimated delivery 2025-05-15.
+- 10000 tickets: not an item we carry; earliest estimated delivery 2025-05-15.
 
 Please let us know if you would like to proceed or adjust your order."

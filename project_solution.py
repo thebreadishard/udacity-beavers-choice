@@ -1463,6 +1463,28 @@ def _render_customer_message(data: dict) -> str:
     return "\n".join(lines).strip()
 
 
+def _safe_structured_fallback() -> str:
+    """
+    Generic, customer-safe reply used when the orchestrator never returns usable structured
+    output. It contains no order-specific data, so internal quantities or operational
+    diagnostics cannot leak through the fallback path by construction.
+    """
+    return (
+        "Thank you for your request. We were not able to safely complete this order from "
+        "the available information. Please confirm the exact catalog item names and "
+        "quantities, and we will prepare an updated quote."
+    )
+
+
+# Stricter instruction used to retry the orchestrator once if its first answer was not
+# valid structured JSON.
+_STRUCTURED_RETRY_INSTRUCTION = (
+    "Your previous answer could not be parsed. Respond again with ONLY the required JSON "
+    "object via the final_answer tool: no prose, no markdown, no code fences, no commentary "
+    "before or after the JSON. Use the exact schema you were given."
+)
+
+
 def call_your_multi_agent_system(request: str) -> str:
     """
     Entry point for the multi-agent system: routes a single customer request through the
@@ -1508,16 +1530,25 @@ def call_your_multi_agent_system(request: str) -> str:
         # Primary path: decide what the customer is told by rendering only whitelisted
         # fields from the orchestrator's structured result.
         data = _parse_structured_result(raw)
+
+        # If the first answer was not usable structured JSON, retry once with a stricter
+        # instruction before giving up on the structured path.
+        if data is None:
+            retry = orchestrator_agent.run(_STRUCTURED_RETRY_INSTRUCTION, reset=False)
+            data = _parse_structured_result(str(retry))
+
         customer_message = _render_customer_message(data) if data is not None else ""
 
         if not customer_message:
-            # Fallback: the model did not return usable structured output, so clean and
-            # filter its free-form text instead.
-            customer_message = customer_safety_filter(_clean_customer_response(raw))
+            # Fallback: the model never returned usable structured output. Return a generic,
+            # customer-safe message rather than any raw free-form text, so internal
+            # quantities or operational diagnostics cannot leak by construction.
+            customer_message = _safe_structured_fallback()
         else:
             # Defense in depth: the rendered message uses only whitelisted fields, but pass
             # it through the safety filter too in case a free-text field carried anything.
             customer_message = customer_safety_filter(customer_message)
+
 
         if _orchestrator_observer is not None:
             _orchestrator_observer.log_done(customer_message)
